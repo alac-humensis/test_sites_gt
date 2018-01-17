@@ -12,5 +12,5 @@ Pour lancer les tests sur Firefox (par défaut), il suffit d'ouvrir un terminal 
 Pour les autres navigateurs il faut explicement préciser l'environnement dans la ligne de commande :\
 `nightwatch -e default,chrome,edge,safari`
 
-*N.B : Pour le moment, seul Firefox et Edge fonctionnent.*\
-*N.B 2 : Pour Edge, lors de l'arrêt des tests le navigateur, et tous les anciens onglets, est entièrement fermé contrairement à Chrome ou Firefox où seule la nouvelle fenêtre, ouverte pour lancer les tests, est fermée.*
+*N.B : Pour le moment, seul Firefox (default) et Edge fonctionnent.*\
+*N.B 2 : Pour Edge, lors de l'arrêt des tests le navigateur est entièrement fermé, avec tous les anciens onglets, contrairement à Chrome ou Firefox où seule la nouvelle fenêtre, ouverte pour lancer les tests, est fermée.*
