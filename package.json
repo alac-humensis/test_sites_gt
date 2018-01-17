@@ -1,0 +1,21 @@
+{
+  "name": "digitheque_tests",
+  "version": "1.0.0",
+  "description": "Ensemble de tests UI et fonctionnels pour le site digitheque",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "keywords": [
+    "test",
+    "tests",
+    "digitheque",
+    "selenium"
+  ],
+  "author": "Alexandre Lac",
+  "license": "ISC",
+  "dependencies": {
+    "selenium-webdriver": "^4.0.0-alpha.1",
+    "skel": "0.0.0"
+  }
+}
