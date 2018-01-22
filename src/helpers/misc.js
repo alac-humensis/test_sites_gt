@@ -30,14 +30,19 @@ module.exports = {
     rgbToHex: function(r, g, b) {
         return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
     },
-    colorFromHex: function(hexColorString){
+    colorFromHex: function(hexColorString, browser){
         var rgb = this.hexToRgb(hexColorString);
         return rgb ? {
             hexColor: hexColorString,
             r: rgb.r,
             g: rgb.g,
             b: rgb.b,
-            rgbCssString: 'rgb('+rgb.r+', '+rgb.g+', '+rgb.b+')'
+            rgbCssString: 'rgb('+rgb.r+', '+rgb.g+', '+rgb.b+')',
+            rgbaCssString: 'rgba('+rgb.r+', '+rgb.g+', '+rgb.b+', 1)',
+            cssString : function(browser){
+                var rgba = browser.options.desiredCapabilities.browserName == 'chrome';
+                return (rgba ? this.rgbaCssString : this.rgbCssString);
+            }
         } : null;
        
     }
