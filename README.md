@@ -1,16 +1,27 @@
 # test_sites_gt
 Tests fonctionnels automatiques des sites développés par GT pour Humensis : Digithèque, La Fabrique connectée et Les Cahiers connectés
 
+## Installation
 Ces tests fonctionnels nécessitent d'installer 
 * NodeJS (version 9.4 au début du dev)
-* Modules NodeJS :
-  * Selenium Web Driver (`npm install selenium-webdriver`)
-  * Nightwatch (`npm install nightwatch`)
-* Drivers pour les différents navigateurs : https://www.npmjs.com/package/selenium-webdriver#installation
+* Nightwatch (`npm install -g nightwatch`)\
+ N.B : Ici le module est installé en global pour faciliter le lancement de la commande
+* Drivers pour les différents navigateurs : https://www.npmjs.com/package/selenium-webdriver#installation \
+ *Attention: Le bon driver pour Chrome n'est pas forcément évident à trouver.*\
+ *Par exemple, lors de développement la dernière version de Chrome est la v64 mais il ne faut pas utiliser le dernier driver proposé (v2.9) mais la v2.35 !*
 
-Pour lancer les tests sur Firefox (par défaut), il suffit d'ouvrir un terminal dans le dossier du projet et de saisir "`nightwatch`".\
+*info : Ce code utilise les module suivants (déjà dans package.json):* \
+* *Modules NodeJS :* 
+  * *Selenium Web Driver (`npm install selenium-webdriver`)* 
+  * *Nightwatch HTML reporter (`npm install nightwatch-html-reporter`)*
+
+## Exécution des tests
+Pour lancer les tests sur Firefox (par défaut), il suffit d'ouvrir un terminal (Powershell sur Windows pour une meilleure lisibilité) dans le dossier du projet et de saisir "`nightwatch`".
+
+Cependant, afin d'obtenir un rapport HTML plus facilement exploitable il faut entrer "`nightwatch --reporter ./html-reporter.js -e default,chrome`".\
+Ou en version plus courte : "`nightwatch -r ./html-reporter.js`"
+
 Pour les autres navigateurs il faut explicement préciser l'environnement dans la ligne de commande :\
-`nightwatch -e default,chrome,edge,safari`
+`nightwatch -r ./html-reporter.js -e default,chrome,edge,safari`
 
-*N.B : Pour le moment, seul Firefox (default) et Edge fonctionnent.*\
-*N.B 2 : Pour Edge, lors de l'arrêt des tests le navigateur est entièrement fermé, avec tous les anciens onglets, contrairement à Chrome ou Firefox où seule la nouvelle fenêtre, ouverte pour lancer les tests, est fermée.*
+*N.B : Pour Edge, lors de l'arrêt des tests le navigateur est entièrement fermé, avec tous les anciens onglets, contrairement à Chrome ou Firefox où seule la nouvelle fenêtre, ouverte pour lancer les tests, est fermée.*
