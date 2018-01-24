@@ -40,7 +40,7 @@ module.exports = {
             rgbCssString: 'rgb('+rgb.r+', '+rgb.g+', '+rgb.b+')',
             rgbaCssString: 'rgba('+rgb.r+', '+rgb.g+', '+rgb.b+', 1)',
             cssString : function(browser){
-                var rgba = browser.options.desiredCapabilities.browserName == 'chrome';
+                var rgba = browser.options.desiredCapabilities.browserName.toLowerCase() == 'chrome';
                 return (rgba ? this.rgbaCssString : this.rgbCssString);
             }
         } : null;

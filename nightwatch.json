@@ -37,9 +37,15 @@
       }
     },
 
+    "firefox" : {
+      "desiredCapabilities": {
+        "browserName": "Firefox"
+      }
+    },
+
     "chrome" : {
       "desiredCapabilities": {
-        "browserName": "chrome",
+        "browserName": "Chrome",
         "acceptSslCerts": true,
         "chromeOptions": {
            "args": ["start-maximized", "use-test-config", "ignore-certificate-errors"]

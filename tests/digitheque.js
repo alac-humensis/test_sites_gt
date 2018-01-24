@@ -190,7 +190,7 @@ module.exports = {
       browser.verify.cssProperty('div.gt-tabs-menu__item:not(.gt-tabs-menu__item--active)', 'color', misc.colorFromHex('#2C3E50').cssString(browser), 'Couleur du texte désélectionné du bandeau "Exercices / Séances / Séances partagées"');
     },
 
-    'Creation de groupe' : function(browser) {
+    'Création de groupe' : function(browser) {
       home(browser);
       //browser.click('a[ui-sref="app.resources"]');
       //browser.click('a[ui-sref="app.groups"]');
@@ -223,7 +223,12 @@ module.exports = {
     },
 
     after : function(browser) {
-      browser.click(elts.user.logout);
+      if(browser.options.desiredCapabilities.browserName == 'MicrosoftEdge'){
+        browser.click(elts.user.logout);
+        browser.deleteCookies(function() {
+          console.log('Suppression des cookies pour Edge');
+        });
+      }
       console.log('Closing down...');
       browser.end();
     },
