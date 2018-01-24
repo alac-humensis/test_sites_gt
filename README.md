@@ -10,7 +10,7 @@ Ces tests fonctionnels nécessitent d'installer
  *Attention: Le bon driver pour Chrome n'est pas forcément évident à trouver.*\
  *Par exemple, lors de développement la dernière version de Chrome est la v64 mais il ne faut pas utiliser le dernier driver proposé (v2.9) mais la v2.35 !*
 
-*info : Ce code utilise les module suivants (déjà dans package.json):* \
+*info : Ce code utilise les module suivants (déjà dans package.json):*\
 * *Modules NodeJS :* 
   * *Selenium Web Driver (`npm install selenium-webdriver`)* 
   * *Nightwatch HTML reporter (`npm install nightwatch-html-reporter`)*
@@ -21,7 +21,9 @@ Pour lancer les tests sur Firefox (par défaut), il suffit d'ouvrir un terminal 
 Cependant, afin d'obtenir un rapport HTML plus facilement exploitable il faut entrer "`nightwatch --reporter ./html-reporter.js -e default,chrome`".\
 Ou en version plus courte : "`nightwatch -r ./html-reporter.js`"
 
-Pour les autres navigateurs il faut explicement préciser l'environnement dans la ligne de commande :\
-`nightwatch -r ./html-reporter.js -e default,chrome,edge,safari`
+Pour les autres navigateurs il faut explicement préciser l'environnement (-e) dans la ligne de commande :\
+`nightwatch -r ./html-reporter.js -e firefox,chrome,edge`
 
 *N.B : Pour Edge, lors de l'arrêt des tests le navigateur est entièrement fermé, avec tous les anciens onglets, contrairement à Chrome ou Firefox où seule la nouvelle fenêtre, ouverte pour lancer les tests, est fermée.*
+
+Pour le moment, impossible de lancer les navigateurs Opéra et Safari pour les tests.
