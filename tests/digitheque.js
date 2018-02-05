@@ -1,5 +1,29 @@
 var misc = require('../src/helpers/misc.js');
 
+var logCtx = {
+  indentLevel = 0,
+  indentStr: function(logIndentTitle) {
+    var indentFull = '';
+    if(this.indentLevel > 0){
+      var indentSpace = '  ';
+      var indentTags = ['##', '+', '-', '°'];
+      for(var i=1; i<this.indentLevel; i++){
+        indentFull += indentSpace;
+      }
+      indentFull += indentTags[Math.min(this.indentLevel-1, indentTags.length-1)];
+    }
+    indentFull += ' ';
+    if(logIndentTitle != undefined){
+      indentFull += logIndentTitle;
+    }
+    return indentFull;
+  },
+  Inc: function(){this.indentLevel++;},
+  Dec: function(){this.indentLevel--;}
+}
+//Fonction au nom très court pour une utilisation plus rapide dans le code
+var idt = function(){ return logCtx.indentStr();}
+
 /**
  * Ensemble de sélecteurs permettant de naviguer dans la digithèque
  */
@@ -8,13 +32,23 @@ var elts = {
     home : 'div.institution-infos img',
     ressources: {
       selector : 'a[ui-sref="app.resources"]',
+      label : 'Ressources',
       btnNouvSeance : 'button.new-module',
       tabsCont : 'div.gt-tabs-menu',
       tabSelected : 'div.gt-tabs-menu__item--active',
       tabUnselected : 'div.gt-tabs-menu__item:not(.gt-tabs-menu__item--active)',
-      tabExosDocs : 'div[ui-sref="app.resources"]',
-      tabSeances : 'div[ui-sref="app.resources.modules"]',
-      tabSeancesPart : 'div[ui-sref="app.resources.shared"]',
+      tabExosDocs : {
+        selector : 'div[ui-sref="app.resources"]',
+        label : 'Exercices/Documents'
+      },
+      tabSeances : {
+        selector : 'div[ui-sref="app.resources.modules"]',
+        label : 'Séances'
+      },
+      tabSeancesPart : {
+        selector : 'div[ui-sref="app.resources.shared"]',
+        label : 'Séances partagées'
+      },
       ligneRess : 'learning-object',
       waitMsg : 'div.gt-loader'
     },
@@ -31,24 +65,33 @@ var elts = {
   },
   filters : {
     sidebar : 'div.list-header-sidebar-button',
+    filter_template : {
+      //rep : '#SPEC_CLASS#',
+      bloc: function(blockClass) { return 'div.gt-meta-filter-bloc.'+blockClass},
+      background: function(blockClass) { return this.bloc(blockClass)+' div.gt-meta-filter-name'},
+      title: function(blockClass) { return this.bloc(blockClass)+' div.title'},
+      collapse: function(blockClass) { return this.bloc(blockClass)+' .gt-meta-filter-collapse'},
+      puce: function(blockClass) { return this.collapse(blockClass)+' i'},
+      //puce_old: function(blockClass) { return this.bloc(blockClass)+' .fa-chevron-circle-down, '+this.bloc(blockClass)+' .fa-chevron-circle-right'},
+      values: function(blockClass) { return this.bloc(blockClass)+' div.gt-meta-filter-values'},
+      item: function(blockClass) { return this.values(blockClass)+' div.gt-meta-filter-item'},
+      itemCheckBoxOn: function(blockClass) { return this.item(blockClass)+' i.fa-check-square' },
+      itemCheckBoxOff: function(blockClass) { return this.item(blockClass)+'  i.fa-square' },
+      itemCheckBox: function(blockClass) { return this.itemCheckBoxOff(blockClass)+', '+this.itemCheckBoxOn(blockClass) },
+      itemTitle: function(blockClass) { return this.item(blockClass)+' span.name'},
+      itemCount: function(blockClass) { return this.item(blockClass)+' span.nb-value'}
+    },
     discipline : {
       label : 'DISCIPLINE',
-      background : 'div.gt-meta-filter-bloc.discipline div.gt-meta-filter-name',
-      title : 'div.gt-meta-filter-bloc.discipline div.title',
-      puce : 'div.gt-meta-filter-bloc.discipline .fa-chevron-circle-down',
-      puce2 : 'div.gt-meta-filter-bloc.discipline div.gt-meta-filter-collapse i'
+      blockClass : 'discipline'
     },
     dominante : {
       label : 'DOMINANTE',
-      background : 'div.gt-meta-filter-bloc.dominante div.gt-meta-filter-name',
-      title : 'div.gt-meta-filter-bloc.dominante div.title',
-      puce : 'div.gt-meta-filter-bloc.dominante div.gt-meta-filter-collapse i'
+      blockClass : 'dominante'
     },
     niveau : {
       label : 'NIVEAU',
-      background : 'div.gt-meta-filter-bloc.niveau div.gt-meta-filter-name',
-      title : 'div.gt-meta-filter-bloc.niveau div.title',
-      puce : 'div.gt-meta-filter-bloc.niveau div.gt-meta-filter-collapse i'
+      blockClass : 'niveau'
     }
   },
   buttons : {
@@ -214,9 +257,9 @@ module.exports = {
       browser.click(elts.user.logout);
       */
       logIn(browser, true);
-      logOut(browser);
-      logIn(browser, false);
-      //logOut(browser);
+      //logOut(browser);//TODO : A REMETTRE
+      //logIn(browser, false);//TODO : A REMETTRE
+      
       /*
         browser.expect.element('.home-banner');
         browser.expect.element('.home-banner').to.be.present;
@@ -319,29 +362,48 @@ function checkRessTabColors(browser){
   goTo(browser, curTab);
   
   var checkFiltersSideBar = function(checkSideBarVisibility, checkHeader){
-    var checkFiltersSection = function(section, sectionColors){
+    var checkFiltersSection = function(section, sectionColors, openFilter){
       var filtre = ' du filtre "'+section.label+'"';
-      browser.verify.cssProperty(section.puce, 'color', colors.filters.puces.cssString(browser), 'Couleur de la puce/ouverture'+filtre);
-      browser.verify.cssProperty(section.background, 'background-color', sectionColors.background.cssString(browser), 'Couleur du fond de l\'en-tête'+filtre);
-      browser.verify.cssProperty(section.title, 'color', sectionColors.text.cssString(browser), 'Couleur du texte de l\'en-tête'+filtre);
+      var bclass = section.blockClass;
+      var tpl = elts.filters.filter_template;
+      browser.waitForElementPresent(tpl.puce(bclass), 10000, 'Attente d\'affichage'+filtre);
+      browser.verify.cssProperty(tpl.puce(bclass), 'color', colors.filters.puces.cssString(browser), 'Couleur de la puce/ouverture'+filtre);
+      browser.verify.cssProperty(tpl.background(bclass), 'background-color', sectionColors.background.cssString(browser), 'Couleur du fond de l\'en-tête'+filtre);
+      browser.verify.cssProperty(tpl.title(bclass), 'color', sectionColors.text.cssString(browser), 'Couleur du texte de l\'en-tête'+filtre);
       //Ligne sélectionnable
-      var indent = '   - ';
-      browser.waitForElementPresent(section.background + 'gt-meta-filter-item', 1000, ' #Vérification d\'une ligne NON cochée'+filtre);
-      browser.verify.cssProperty(section.background + ' i.fa-square', 'color', colors.filters.item.unselected.checkbox.cssString(browser), indent+'Couleur d\'une case à cocher d\'une ligne'+filtre);
-      browser.verify.cssProperty(section.background + ' span.name', 'color', colors.filters.item.unselected.text.cssString(browser), indent+'Couleur de l\'intitulé d\'une ligne'+filtre);
-      browser.verify.cssProperty(section.background + ' span.nb-value', 'background-color', colors.filters.item.unselected.count.background.cssString(browser), indent+'Couleur du fond du nombre de résultats d\'une ligne'+filtre);
-      browser.verify.cssProperty(section.background + ' span.nb-value', 'color', colors.filters.item.unselected.count.text.cssString(browser), indent+'Couleur du nombre de résultats d\'une ligne'+filtre);
+      //On ouvre le filtre pour faire apparaître
+      if(openFilter === true){
+        var openElt = tpl.title(bclass);//tpl.collapse(bclass)
+        browser.expect.element(openElt).to.be.present;
+        browser.click(openElt, () => {console.log('Clic pour ouverture'+filtre+' ('+openElt+')');});
+      }
+      browser.waitForElementPresent(tpl.item(bclass), 10000, idt()+'Vérification d\'une ligne NON cochée'+filtre);
+      logCtx.Inc();
+      var indent = idt();//'   - ';
+      browser.verify.cssProperty(tpl.itemCheckBox(bclass), 'color', colors.filters.item.unselected.checkbox.cssString(browser), indent+'Couleur d\'une case à cocher d\'une ligne'+filtre);
+      browser.verify.cssProperty(tpl.itemTitle(bclass), 'color', colors.filters.item.unselected.text.cssString(browser), indent+'Couleur de l\'intitulé d\'une ligne'+filtre);
+      browser.verify.cssProperty(tpl.itemCount(bclass), 'background-color', colors.filters.item.unselected.count.background.cssString(browser), indent+'Couleur du fond du nombre de résultats d\'une ligne'+filtre);
+      browser.verify.cssProperty(tpl.itemCount(bclass), 'color', colors.filters.item.unselected.count.text.cssString(browser), indent+'Couleur du nombre de résultats d\'une ligne'+filtre);
+      logCtx.Dec();
       
       //Ligne sélectionnée
-      browser.click(section.background + ' i.fa-square');
+      browser.click(tpl.itemCheckBox(bclass));
       browser.pause(1000);
-      browser.waitForElementVisible(section.background + 'gt-meta-filter-item', 1000, ' #Vérification d\'une ligne cochée'+filtre);
-      browser.verify.cssProperty(section.background + ' i.fa-square', 'color', colors.filters.item.selected.checkbox.cssString(browser), indent+'Couleur d\'une case cochée d\'une ligne'+filtre);
-      browser.verify.cssProperty(section.background + ' span.name', 'color', colors.filters.item.selected.text.cssString(browser), indent+'Couleur de l\'intitulé d\'une ligne'+filtre);
-      browser.verify.cssProperty(section.background + ' span.nb-value', 'background-color', colors.filters.item.selected.count.background.cssString(browser), indent+'Couleur du fond du nombre de résultats d\'une ligne'+filtre);
-      browser.verify.cssProperty(section.background + ' span.nb-value', 'color', colors.filters.item.selected.count.text.cssString(browser), indent+'Couleur du nombre de résultats d\'une ligne'+filtre);
-      browser.click(section.background + ' i.fa-check-square');      
-      browser.pause(1000);
+      browser.waitForElementVisible(tpl.item(bclass), 1000, idt()+'Vérification d\'une ligne cochée'+filtre);
+      logCtx.Inc();
+      browser.verify.cssProperty(tpl.itemCheckBox(bclass), 'color', colors.filters.item.selected.checkbox.cssString(browser), indent+'Couleur d\'une case cochée d\'une ligne'+filtre);
+      browser.verify.cssProperty(tpl.itemTitle(bclass), 'color', colors.filters.item.selected.text.cssString(browser), indent+'Couleur de l\'intitulé d\'une ligne'+filtre);
+      browser.verify.cssProperty(tpl.itemCount(bclass), 'background-color', colors.filters.item.selected.count.background.cssString(browser), indent+'Couleur du fond du nombre de résultats d\'une ligne'+filtre);
+      browser.verify.cssProperty(tpl.itemCount(bclass), 'color', colors.filters.item.selected.count.text.cssString(browser), indent+'Couleur du nombre de résultats d\'une ligne'+filtre);
+      browser.click(tpl.itemCheckBox(bclass)); 
+      browser.waitForElementVisible(tpl.itemCheckBoxOff(bclass), 2000, 'Attente de désélection de la ligne');     
+      browser.pause(10000);
+      //On referme le filtre pour revenir à l'état initial
+      if(openFilter === true){
+        browser.click(tpl.collapse(bclass), () => {console.log('Clic pour fermeture'+filtre+' ('+tpl.collapse(bclass)+')');});
+        browser.pause(1000);
+      }
+      logCtx.Dec();
     }
     if(checkSideBarVisibility === true){
       browser.waitForElementVisible(elts.filters.sidebar, 2000, 'Attente d\'apparition des filtres');
@@ -351,33 +413,49 @@ function checkRessTabColors(browser){
       browser.verify.cssProperty(elts.filters.sidebar, 'color', colors.filters.header.text.cssString(browser), 'Couleur du texte de l\'en-tête des filtres');
     }
     checkFiltersSection(elts.filters.discipline, colors.filters.discipline);
-    checkFiltersSection(elts.filters.dominante, colors.filters.dominante);
-    checkFiltersSection(elts.filters.niveau, colors.filters.niveau);
+    checkFiltersSection(elts.filters.dominante, colors.filters.dominante, true);
+    checkFiltersSection(elts.filters.niveau, colors.filters.niveau, true);
   }
   var checkBtnCreate = function(){
     browser.verify.cssProperty(curTab.btnNouvSeance, 'background-color', colors.activeColor.cssString(browser), 'Couleur du fond du bouton "Créer une séance"');
     browser.verify.cssProperty(curTab.btnNouvSeance, 'color', colors.buttons.default.text.cssString(browser), 'Couleur du texte du bouton "Créer une séance"');
     browser.verify.containsText(curTab.btnNouvSeance, 'CRÉER UNE SÉANCE', 'Vérification du texte du bouton "Créer une séance"');
-    }
+  }
+  var checkRessSubTab = function(subTab, checkFiltersHeader){
+    logCtx.Inc();
+    browser.waitForElementPresent(subTab.selector, 1000, idt()+'Clic sur l\'onglet "'+subTab.label+'"');
+    browser.click(subTab.selector);
+    browser.waitForElementNotPresent(curTab.waitMsg, 20000, idt()+'Attente de disparition du message d\'attente de chargement');
+    checkFiltersSideBar(true, checkFiltersHeader);
+    checkBtnCreate();  
+    logCtx.Dec();
+  }
+
+  
+  logCtx.Inc();
   //Ex / Doc : 
-  browser.waitForElementVisible(elts.filters.sidebar, 2000, 'Attente d\'apparition des filtres');
+  browser.waitForElementVisible(elts.filters.sidebar, 2000, logCtx.indentStr(curTab.label)+' (Attente d\'apparition des filtres)');
   browser.verify.cssProperty(curTab.tabsCont, 'background-color', misc.colorFromHex('#E8E8E8').cssString(browser), 'Couleur fond du bandeau "Exercices / Séances / Séances partagées"');
   browser.verify.cssProperty(curTab.tabSelected, 'color', misc.colorFromHex('#2C3E50').cssString(browser), 'Couleur du texte sélectionné du bandeau "Exercices / Séances / Séances partagées"');
   browser.verify.cssProperty(curTab.tabUnselected, 'color', misc.colorFromHex('#2C3E50').cssString(browser), 'Couleur du texte désélectionné du bandeau "Exercices / Séances / Séances partagées"');
-  checkFiltersSideBar(false, true);
-  checkBtnCreate();
+  checkRessSubTab(curTab.tabExosDocs, true);
+  /*checkFiltersSideBar(false, true);
+  checkBtnCreate();*/
 
   //Séances
-  browser.waitForElementPresent(curTab.tabSeances, 1000, 'Clic sur l\'onglet "Séances"');
+  checkRessSubTab(curTab.tabSeances, false);
+  /*browser.waitForElementPresent(curTab.tabSeances, 1000, 'Clic sur l\'onglet "Séances"');
   browser.click(curTab.tabSeances);
   browser.waitForElementNotPresent(curTab.waitMsg, 20000, 'Attente de disparition du message d\'attente de chargement');
   checkFiltersSideBar(true, false);
-  checkBtnCreate();
+  checkBtnCreate();*/
 
   //Séances partagées
-  browser.waitForElementPresent(curTab.tabSeancesPart, 1000, 'Clic sur l\'onglet "Séances partagées"');
+  checkRessSubTab(curTab.tabSeancesPart, false);
+  /*browser.waitForElementPresent(curTab.tabSeancesPart, 1000, 'Clic sur l\'onglet "Séances partagées"');
   browser.click(curTab.tabSeancesPart);
   browser.waitForElementNotPresent(curTab.waitMsg, 20000, 'Attente de disparition du message d\'attente de chargement');
   checkFiltersSideBar(true, false);
-  checkBtnCreate();
+  checkBtnCreate();*/
+  logCtx.Dec();
 }
