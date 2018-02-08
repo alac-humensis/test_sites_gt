@@ -13,7 +13,17 @@ var elts = {
     ressources: {
       selector : 'a[ui-sref="app.resources"]',
       label : 'Ressources',
-      btnNouvSeance : 'button.new-module',
+      list_header : {
+        container : 'list-header',
+        search : {
+          container : 'search div.search',
+          ico : 'i.fa-search',
+          input : '.search input[type="search"]',
+          placeholder : '.search input[type="search"]::placeholder'//pseudo-classe inaccessible ?
+        },
+        favorites_toggle : 'favorites-toggle',
+        btnNouvSeance : 'button.new-module',
+      },
       tabsCont : 'div.gt-tabs-menu',
       tabSelected : 'div.gt-tabs-menu__item--active',
       tabUnselected : 'div.gt-tabs-menu__item:not(.gt-tabs-menu__item--active)',
@@ -47,11 +57,13 @@ var elts = {
   },
   filters : {
     sidebar : 'div.list-header-sidebar-button',
+    sidebar_toggle : 'div.toggle-sidebar-button',
     filter_template : {
       //rep : '#SPEC_CLASS#',
       bloc: function(blockClass) { return 'div.gt-meta-filter-bloc.'+blockClass},
       background: function(blockClass) { return this.bloc(blockClass)+' div.gt-meta-filter-name'},
       title: function(blockClass) { return this.bloc(blockClass)+' div.title'},
+      unselect: function(blockClass) { return this.bloc(blockClass)+' .gt-meta-filter-cancel span'},
       collapse: function(blockClass) { return this.bloc(blockClass)+' .gt-meta-filter-collapse'},
       puce: function(blockClass) { return this.collapse(blockClass)+' i'},
       //puce_old: function(blockClass) { return this.bloc(blockClass)+' .fa-chevron-circle-down, '+this.bloc(blockClass)+' .fa-chevron-circle-right'},
@@ -115,7 +127,8 @@ var colors = {
     },
     header : {
       background : misc.colorFromHex('#0298CA'),
-      text : misc.colorFromHex('#FFF')
+      text : misc.colorFromHex('#FFF'),
+      unselect : misc.colorFromHex('#6e6e6e')
     },
     discipline : {
       background : misc.colorFromHex('#2c3e50'),//actuellement #34495e
@@ -343,7 +356,7 @@ function checkRessTabColors(browser){
   var mainTab = elts.tabs.ressources;
   goTo(browser, mainTab);
   
-  //// Sous-fonctions utilitaires ////
+  //// Sous-fonctions pour mutualiser le code ////
   var checkFiltersSideBar = function(subTab, checkSideBarVisibility, checkHeader){
     //////
     var checkFiltersSection = function(subTab, section, sectionColors, openFilter){
@@ -353,7 +366,9 @@ function checkRessTabColors(browser){
       browser.waitForElementPresent(tpl.puce(bclass), 10000, idt()+'Attente d\'affichage'+filtre);
       browser.verify.cssProperty(tpl.puce(bclass), 'color', colors.filters.puces.cssString(browser), idt()+'Couleur de la puce/ouverture'+filtre);
       browser.verify.cssProperty(tpl.background(bclass), 'background-color', sectionColors.background.cssString(browser), idt()+'Couleur du fond de l\'en-tête'+filtre);
-      browser.verify.cssProperty(tpl.title(bclass), 'color', sectionColors.text.cssString(browser), idt()+'Couleur du texte de l\'en-tête'+filtre);
+      browser.verify.cssProperty(tpl.title(bclass), 'background-color', sectionColors.background.cssString(browser), idt()+'Couleur du fond du titre de l\'en-tête'+filtre);
+      browser.verify.cssProperty(tpl.title(bclass), 'color', sectionColors.text.cssString(browser), idt()+'Couleur du titre de l\'en-tête'+filtre);
+      browser.verify.cssProperty(tpl.unselect(bclass), 'color', sectionColors.text.cssString(browser), idt()+'Couleur du texte de désélection'+filtre);
       //Ligne sélectionnable
       //On ouvre le filtre pour faire apparaître
       if(openFilter === true){
@@ -406,9 +421,9 @@ function checkRessTabColors(browser){
     checkFiltersSection(subTab, elts.filters.niveau, colors.filters.niveau, true);
   }
   var checkBtnCreate = function(){
-    browser.verify.cssProperty(mainTab.btnNouvSeance, 'background-color', colors.activeColor.cssString(browser), idt()+'Couleur du fond du bouton "Créer une séance"');
-    browser.verify.cssProperty(mainTab.btnNouvSeance, 'color', colors.buttons.default.text.cssString(browser), idt()+'Couleur du texte du bouton "Créer une séance"');
-    browser.verify.containsText(mainTab.btnNouvSeance, 'CRÉER UNE SÉANCE', idt()+'Vérification du texte du bouton "Créer une séance"');
+    browser.verify.cssProperty(mainTab.list_header.btnNouvSeance, 'background-color', colors.activeColor.cssString(browser), idt()+'Couleur du fond du bouton "Créer une séance"');
+    browser.verify.cssProperty(mainTab.list_header.btnNouvSeance, 'color', colors.buttons.default.text.cssString(browser), idt()+'Couleur du texte du bouton "Créer une séance"');
+    browser.verify.containsText(mainTab.list_header.btnNouvSeance, 'CRÉER UNE SÉANCE', idt()+'Vérification du texte du bouton "Créer une séance"');
   }
   var checkRessSubTab = function(subTab, checkFilters, checkFiltersHeader){
     browser.waitForElementPresent(subTab.selector, 1000, idt()+'Clic sur l\'onglet "'+subTab.label+'"');
@@ -427,28 +442,25 @@ function checkRessTabColors(browser){
   logIndent.Inc();
   browser.waitForElementVisible(elts.filters.sidebar, 2000, logIndent.indentStr(mainTab.label)+' (Attente d\'apparition des filtres)');
   logIndent.Inc();
+  var header = mainTab.list_header;
+  browser.verify.cssProperty(header.container, 'background-color', misc.colorFromHex('#34495e').cssString(browser), idt()+'Couleur fond du bandeau "Exercices / Séances / Séances partagées"');
+  browser.verify.cssProperty(header.search.ico, 'color', misc.colorFromHex('#2C3E50').cssString(browser), idt()+'Couleur du texte sélectionné du bandeau "Exercices / Séances / Séances partagées"');
+  browser.verify.cssProperty(header.search.input, 'background-color', misc.colorFromHex('#fff').cssString(browser), idt()+'Couleur du texte sélectionné du bandeau "Exercices / Séances / Séances partagées"');
+  browser.verify.cssProperty(header.search.input, 'color', misc.colorFromHex('#1a2930').cssString(browser), idt()+'Couleur du texte sélectionné du bandeau "Exercices / Séances / Séances partagées"');
+  //header.search.placeholder = pseudo-classe inaccessible ?
+  browser.verify.cssProperty(header.favorites_toggle, 'color', misc.colorFromHex('#fff').cssString(browser), idt()+'Couleur du texte sélectionné du bandeau "Exercices / Séances / Séances partagées"');
+  
   browser.verify.cssProperty(mainTab.tabsCont, 'background-color', misc.colorFromHex('#E8E8E8').cssString(browser), idt()+'Couleur fond du bandeau "Exercices / Séances / Séances partagées"');
   browser.verify.cssProperty(mainTab.tabSelected, 'color', misc.colorFromHex('#2C3E50').cssString(browser), idt()+'Couleur du texte sélectionné du bandeau "Exercices / Séances / Séances partagées"');
   browser.verify.cssProperty(mainTab.tabUnselected, 'color', misc.colorFromHex('#2C3E50').cssString(browser), idt()+'Couleur du texte désélectionné du bandeau "Exercices / Séances / Séances partagées"');
   checkRessSubTab(mainTab.tabExosDocs, true, true);
-  /*checkFiltersSideBar(false, true);
-  checkBtnCreate();*/
 
   //Séances
   checkRessSubTab(mainTab.tabSeances, false, false);
-  /*browser.waitForElementPresent(mainTab.tabSeances, 1000, 'Clic sur l\'onglet "Séances"');
-  browser.click(mainTab.tabSeances);
-  browser.waitForElementNotPresent(mainTab.waitMsg, 20000, 'Attente de disparition du message d\'attente de chargement');
-  checkFiltersSideBar(true, false);
-  checkBtnCreate();*/
 
   //Séances partagées
   checkRessSubTab(mainTab.tabSeancesPart, false, false);
-  /*browser.waitForElementPresent(mainTab.tabSeancesPart, 1000, 'Clic sur l\'onglet "Séances partagées"');
-  browser.click(mainTab.tabSeancesPart);
-  browser.waitForElementNotPresent(mainTab.waitMsg, 20000, 'Attente de disparition du message d\'attente de chargement');
-  checkFiltersSideBar(true, false);
-  checkBtnCreate();*/
+
   logIndent.Dec();
   logIndent.Dec();
 }
