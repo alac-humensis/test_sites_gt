@@ -1,28 +1,8 @@
 var misc = require('../src/helpers/misc.js');
+var logIndent = require('../src/helpers/LogIndent.js');
 
-var logCtx = {
-  indentLevel : 0,
-  indentStr : function(logIndentTitle) {
-    var indentFull = '';
-    if(this.indentLevel > 0){
-      var indentSpace = '|___';//'˾__';//'...';//'…';//'__';//
-      var indentTags = ['##', '+', '-', '°'];
-      for(var i=1; i<this.indentLevel; i++){
-        indentFull += indentSpace;
-      }
-      indentFull += indentTags[Math.min(this.indentLevel-1, indentTags.length-1)];
-    }
-    indentFull += ' ';
-    if(logIndentTitle != undefined){
-      indentFull += logIndentTitle;
-    }
-    return indentFull;
-  },
-  Inc : function(){this.indentLevel++;},
-  Dec : function(){this.indentLevel--;}
-}
 //Fonction au nom très court pour une utilisation plus rapide dans le code
-var idt = function(){ return logCtx.indentStr();}
+var idt = function(){ return logIndent.indentStr();}
 
 /**
  * Ensemble de sélecteurs permettant de naviguer dans la digithèque
@@ -383,20 +363,20 @@ function checkRessTabColors(browser){
         browser.pause(1000);
       }
       browser.waitForElementPresent(tpl.item(bclass), 10000, idt()+'Vérification d\'une ligne NON cochée'+filtre);
-      logCtx.Inc();
+      logIndent.Inc();
       var indent = idt();//'   - ';
       browser.verify.cssProperty(tpl.itemCheckBox(bclass), 'color', colors.filters.item.unselected.checkbox.cssString(browser), indent+'Couleur d\'une case à cocher d\'une ligne'+filtre);
       browser.verify.cssProperty(tpl.itemTitle(bclass), 'color', colors.filters.item.unselected.text.cssString(browser), indent+'Couleur de l\'intitulé d\'une ligne'+filtre);
       browser.verify.cssProperty(tpl.itemCount(bclass), 'background-color', colors.filters.item.unselected.count.background.cssString(browser), indent+'Couleur du fond du nombre de résultats d\'une ligne'+filtre);
       browser.verify.cssProperty(tpl.itemCount(bclass), 'color', colors.filters.item.unselected.count.text.cssString(browser), indent+'Couleur du nombre de résultats d\'une ligne'+filtre);
-      logCtx.Dec();
+      logIndent.Dec();
       
       //Ligne sélectionnée
       browser.click(tpl.itemCheckBox(bclass));
       browser.pause(1000);
       //browser.waitForElementVisible(tpl.item(bclass), 1000, idt()+'Vérification d\'une ligne cochée'+filtre);
       browser.waitForElementVisible(subTab.ligneRess, 10000, idt()+'Vérification d\'une ligne cochée'+filtre);
-      logCtx.Inc();
+      logIndent.Inc();
       browser.verify.cssProperty(tpl.itemCheckBox(bclass), 'color', colors.filters.item.selected.checkbox.cssString(browser), indent+'Couleur d\'une case cochée d\'une ligne'+filtre);
       browser.verify.cssProperty(tpl.itemTitle(bclass), 'color', colors.filters.item.selected.text.cssString(browser), indent+'Couleur de l\'intitulé d\'une ligne'+filtre);
       browser.verify.cssProperty(tpl.itemCount(bclass), 'background-color', colors.filters.item.selected.count.background.cssString(browser), indent+'Couleur du fond du nombre de résultats d\'une ligne'+filtre);
@@ -411,7 +391,7 @@ function checkRessTabColors(browser){
         browser.click(tpl.collapse(bclass), () => {console.log('Clic pour fermeture'+filtre+' ('+tpl.collapse(bclass)+')');});
         browser.pause(1000);
       }
-      logCtx.Dec();
+      logIndent.Dec();
     }
     //////
     if(checkSideBarVisibility === true){
@@ -432,21 +412,21 @@ function checkRessTabColors(browser){
   }
   var checkRessSubTab = function(subTab, checkFilters, checkFiltersHeader){
     browser.waitForElementPresent(subTab.selector, 1000, idt()+'Clic sur l\'onglet "'+subTab.label+'"');
-    logCtx.Inc();
+    logIndent.Inc();
     browser.click(subTab.selector);
     browser.waitForElementNotPresent(mainTab.waitMsg, 30000, idt()+'Attente de disparition du message d\'attente de chargement');
     if(checkFilters === true){
       checkFiltersSideBar(subTab, true, checkFiltersHeader);
     }
     checkBtnCreate();
-    logCtx.Dec();
+    logIndent.Dec();
   }
   ////
   
   //Ex / Doc : 
-  logCtx.Inc();
-  browser.waitForElementVisible(elts.filters.sidebar, 2000, logCtx.indentStr(mainTab.label)+' (Attente d\'apparition des filtres)');
-  logCtx.Inc();
+  logIndent.Inc();
+  browser.waitForElementVisible(elts.filters.sidebar, 2000, logIndent.indentStr(mainTab.label)+' (Attente d\'apparition des filtres)');
+  logIndent.Inc();
   browser.verify.cssProperty(mainTab.tabsCont, 'background-color', misc.colorFromHex('#E8E8E8').cssString(browser), idt()+'Couleur fond du bandeau "Exercices / Séances / Séances partagées"');
   browser.verify.cssProperty(mainTab.tabSelected, 'color', misc.colorFromHex('#2C3E50').cssString(browser), idt()+'Couleur du texte sélectionné du bandeau "Exercices / Séances / Séances partagées"');
   browser.verify.cssProperty(mainTab.tabUnselected, 'color', misc.colorFromHex('#2C3E50').cssString(browser), idt()+'Couleur du texte désélectionné du bandeau "Exercices / Séances / Séances partagées"');
@@ -469,6 +449,6 @@ function checkRessTabColors(browser){
   browser.waitForElementNotPresent(mainTab.waitMsg, 20000, 'Attente de disparition du message d\'attente de chargement');
   checkFiltersSideBar(true, false);
   checkBtnCreate();*/
-  logCtx.Dec();
-  logCtx.Dec();
+  logIndent.Dec();
+  logIndent.Dec();
 }
