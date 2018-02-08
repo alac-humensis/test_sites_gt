@@ -30,19 +30,44 @@ var elts = {
       tabExosDocs : {
         selector : 'div[ui-sref="app.resources"]',
         label : 'Exercices/Documents',
-        ligneRess : 'learning-object'
+        ligneRess : {
+          tag : 'learning-object'
+        }
       },
       tabSeances : {
         selector : 'div[ui-sref="app.resources.modules"]',
         label : 'Séances',
-        ligneRess : 'module'
+        ligneRess :{
+          tag : 'module'
+        }
       },
       tabSeancesPart : {
         selector : 'div[ui-sref="app.resources.shared"]',
         label : 'Séances partagées',
-        ligneRess : 'module'
+        ligneRess : {
+          tag : 'module'
+        }
       },
-      waitMsg : 'div.gt-loader'
+      waitMsg : 'div.gt-loader',
+      ress_template : {
+        container : function(ressTag) { return ressTag},
+        cover : function(ressTag) { return this.container(ressTag) + ' div.cover'},
+        infos : function(ressTag) { return this.container(ressTag) + ' div.infos'},
+        title : function(ressTag) { return this.infos(ressTag) + ' .title'},
+        author : function(ressTag) { return this.infos(ressTag) + ' .author'},
+        description : function(ressTag) { return this.infos(ressTag) + ' .description'},
+        metas : function(ressTag) { return this.container(ressTag) + ' div.metas div.meta'},
+        actions : function(ressTag) { return this.container(ressTag) + ' div.actions'},
+        fav : function(ressTag) { return this.actions(ressTag) + ' .action.favorite i.fa-star-o'},
+        preview : function(ressTag) { return this.container(ressTag) + ' .action.lo-preview'},
+        infos_popup : function(ressTag) { return this.container(ressTag) + ' .action.lo-edit-meta2'},
+        add : function(ressTag) { return this.container(ressTag) + ' .action.lo-add'},
+        //diff avec learning-object
+        infos_popup_mod : function(ressTag) { return this.container(ressTag) + ' .action .fa-stack-2x'},
+        webreader : function(ressTag) { return this.container(ressTag) + ' .webreader a'},
+        //todo
+        more_actions : function(ressTag) { return this.container(ressTag) + ' div.dropdown-actions'},
+      },
     },
     mesRessources: 'a[ui-sref="app.library"]',
     seances: 'a[ui-sref="app.assignements"]',
@@ -390,7 +415,22 @@ function checkRessTabColors(browser){
       browser.click(tpl.itemCheckBox(bclass));
       browser.pause(1000);
       //browser.waitForElementVisible(tpl.item(bclass), 1000, idt()+'Vérification d\'une ligne cochée'+filtre);
-      browser.waitForElementVisible(subTab.ligneRess, 10000, idt()+'Vérification d\'une ligne cochée'+filtre);
+      browser.waitForElementVisible(subTab.ligneRess.tag, 10000, idt()+'Vérification d\'une ligne cochée'+filtre);
+      //TODO vérification de l'affichage d'un ressource
+      /*
+      ress_template : {
+        container : function(ressTag) { return ressTag},
+        cover : function(ressTag) { return this.container(ressTag) + ' div.cover'},
+        infos : function(ressTag) { return this.container(ressTag) + ' div.infos'},
+        title : function(ressTag) { return this.infos(ressTag) + ' .title'},
+        metas : function(ressTag) { return this.container(ressTag) + ' div.metas div.meta'},
+        actions : function(ressTag) { return this.container(ressTag) + ' div.actions'},
+        fav : function(ressTag) { return this.actions(ressTag) + ' .action.favorite i.fa-star-o'},
+        preview : function(ressTag) { return this.container(ressTag) + ' .action.lo-preview'},
+        infos_popup : function(ressTag) { return this.container(ressTag) + ' .action.lo-edit-meta2'},
+        add : function(ressTag) { return this.container(ressTag) + ' .actions.lo-add'},
+      },
+      */
       logIndent.Inc();
       browser.verify.cssProperty(tpl.itemCheckBox(bclass), 'color', colors.filters.item.selected.checkbox.cssString(browser), indent+'Couleur d\'une case cochée d\'une ligne'+filtre);
       browser.verify.cssProperty(tpl.itemTitle(bclass), 'color', colors.filters.item.selected.text.cssString(browser), indent+'Couleur de l\'intitulé d\'une ligne'+filtre);
@@ -400,7 +440,7 @@ function checkRessTabColors(browser){
       //browser.waitForElementVisible(tpl.itemCheckBoxOff(bclass), 2000, 'Attente de désélection de la ligne');
       //browser.pause(10000);
       browser.pause(1000);
-      browser.waitForElementVisible(subTab.ligneRess, 10000, idt()+'Attente de désélection de la ligne');
+      browser.waitForElementVisible(subTab.ligneRess.tag, 10000, idt()+'Attente de désélection de la ligne');
       //On referme le filtre pour revenir à l'état initial
       if(openFilter === true){
         browser.click(tpl.collapse(bclass), () => {console.log('Clic pour fermeture'+filtre+' ('+tpl.collapse(bclass)+')');});
@@ -454,7 +494,7 @@ function checkRessTabColors(browser){
   browser.verify.cssProperty(mainTab.tabSelected, 'color', misc.colorFromHex('#2C3E50').cssString(browser), idt()+'Couleur du texte sélectionné du bandeau "Exercices / Séances / Séances partagées"');
   browser.verify.cssProperty(mainTab.tabUnselected, 'color', misc.colorFromHex('#2C3E50').cssString(browser), idt()+'Couleur du texte désélectionné du bandeau "Exercices / Séances / Séances partagées"');
   checkRessSubTab(mainTab.tabExosDocs, true, true);
-
+  //mainTab.tabExosDocs.ligneRess.tag
   //Séances
   checkRessSubTab(mainTab.tabSeances, false, false);
 
