@@ -42,8 +42,25 @@ module.exports = {
             cssString : function(browser){
                 var rgba = browser.options.desiredCapabilities.browserName.toLowerCase() == 'chrome';
                 return (rgba ? this.rgbaCssString : this.rgbCssString);
+            },
+            assign : function(newColorFromHex){
+                this.hexColor = newColorFromHex.hexColor;
+                this.r = newColorFromHex.r;
+                this.g = newColorFromHex.g;
+                this.b = newColorFromHex.b;
+                this.rgbCssString = newColorFromHex.rgbCssString;
+                this.rgbaCssString = newColorFromHex.rgbaCssString;
             }
         } : null;
-       
+    },
+    zeroPad : function(num, numZeros) {
+        var n = Math.abs(num);
+        var zeros = Math.max(0, numZeros - Math.floor(n).toString().length );
+        var zeroString = Math.pow(10,zeros).toString().substr(1);
+        if( num < 0 ) {
+            zeroString = '-' + zeroString;
+        }
+    
+        return zeroString+n;
     }
 }

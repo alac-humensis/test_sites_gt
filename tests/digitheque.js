@@ -1,7 +1,10 @@
 require = require('@std/esm')(module)
-var digi = require('../src/sites/Digitheque.mjs');
+//var digi = require('../src/sites/Digitheque.mjs');
 
 //module.exports = digi;
+/*
+// OK
+var digi = require('../src/sites/Digitheque.mjs');
 module.exports = {
   'Authentification' : function(browser){
     digi._init_(browser);
@@ -14,3 +17,17 @@ module.exports = {
     digi.checkColors();
   }
 }
+*/
+
+
+// NOK
+/*
+import Digitheque from '../src/sites/Digitheque';
+var Digitheque_inst = new Digitheque();
+
+module.exports = Digitheque_inst.genNodeExport();
+*/
+
+//
+var digi = require('../src/sites/Digitheque.mjs');
+module.exports = digi.genNodeExport();
