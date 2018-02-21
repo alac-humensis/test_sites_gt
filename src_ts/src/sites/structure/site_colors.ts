@@ -1,6 +1,6 @@
 import { colorFromHex } from "../../helpers/color";
 import { Color } from "../../helpers/color";
-import { GtLMSTemplate } from "../GtLmsTemplate";
+import { GtLMSSite } from "../GtLmsTemplate";
 
 "use strict";
 
@@ -111,7 +111,7 @@ export class GtLMSColors{
   filters : GtLMSFiltersColors = new GtLMSFiltersColors(this);
   buttons : GtLMSButtonsColors = new GtLMSButtonsColors(this);
 
-  constructor(public site: GtLMSTemplate) {
+  constructor(public site: GtLMSSite) {
     this.filters.items.unselected.count;
   }
 }

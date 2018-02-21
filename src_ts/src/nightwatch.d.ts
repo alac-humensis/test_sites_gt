@@ -1391,6 +1391,7 @@ export interface NightwatchAPI {
      * @param callback: Optional callback function to be called when the command finishes.
      */
     setValue(selector: string, inputValue: string, callback?: () => void): this;
+    setValue(selector: string, inputValue: Array<string>, callback?: () => void): this;
 
     /**
      * Sets the current window position.
@@ -1564,6 +1565,7 @@ export interface NightwatchAPI {
      * @param message: Optional message to be shown in the output; the message supports two placeholders: %s for current selector and %d for the time (e.g. Element %s was not in the page for %d ms).
      */
     waitForElementVisible(selector: string, time?: number, abortOnFailure?: boolean, callback?: () => void, message?: string): this;
+    waitForElementVisible(selector: string, time?: number, message?: string): this;
 
     /**
      * Accepts the currently displayed alert dialog. Usually, this is equivalent to clicking on the 'OK' button in the dialog.

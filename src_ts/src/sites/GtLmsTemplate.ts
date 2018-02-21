@@ -1,9 +1,11 @@
-import { GtSiteStructure } from "./structure/site_structure";
+import { GtLMSStructure } from "./structure/site_structure";
 import { colorFromHex } from "../helpers/color";
 import { Filter } from "./structure/filter";
 import { NightwatchBrowser } from "../nightwatch";
+import { zeroPad } from "../helpers/misc";
+import { GtLMSColors } from "./structure/site_colors";
 
-"use strict";
+//"use strict";
 
 var misc = require('../helpers/misc.js');
 var logIndent = require('../helpers/LogIndent.js');
@@ -14,7 +16,7 @@ var idt = function(){ return logIndent.indentStr();}
 //import Filter from './ui_accessors/filter.mjs';
 
 /*
-élément inaccessible pour le moment (eclu de this.struct pour améliorer la lisibilité :
+élément inaccessible pour le moment (exclu de this.struct pour améliorer la lisibilité :
         home : {
           cards : {
             number_1 : {
@@ -52,11 +54,11 @@ var idt = function(){ return logIndent.indentStr();}
           }
         }
 */
-export class GtSiteTemplate{
+export class GtLMSSite{
   accounts;
-  browser;
-  struct : GtSiteStructure;
-  colors;
+  browser: NightwatchBrowser;
+  struct: GtLMSStructure;
+  colors: GtLMSColors;
   constructor() {
     this.accounts = {};
     this.browser = null;
@@ -177,70 +179,9 @@ export class GtSiteTemplate{
       }
     }
     */
-    this.struct = new GtSiteStructure(this);
-    var activeColor = colorFromHex('#E60077');
-    var activeFilterColor = colorFromHex('#0298ca');
-    var inactiveColor = colorFromHex('#6C797A');
-    var lightText = colorFromHex('#FFF');
+    this.struct = new GtLMSStructure(this);
   
-    this.colors = {
-      placeholderText : colorFromHex('#6F7780'),
-      activeColor : activeColor,
-      inactiveColor : colorFromHex('#6C797A'),
-      lightText : lightText,
-      filters : {
-        activeColor : activeFilterColor,
-        puces : activeFilterColor,
-        item : {
-          unselected :{
-            checkbox : colorFromHex('#e8e8e8'),
-            text : colorFromHex('#2c3e50'),
-            count : {
-              background : colorFromHex('#757575'),
-              text : lightText
-            }
-          },
-          selected :{
-            checkbox : activeFilterColor,
-            text : activeFilterColor,
-            count : {
-              background : activeFilterColor,
-              text : lightText
-            }
-          }
-        },
-        header : {
-          background : activeFilterColor,
-          text : lightText,
-          unselect : colorFromHex('#6e6e6e')
-        },
-        discipline : {
-          background : colorFromHex('#2c3e50'),//actuellement #34495e
-          text : lightText
-        },
-        dominante : {
-          background : colorFromHex('#e8e8e8'),
-          text : colorFromHex('#6e6e6e')
-        },
-        niveau : {
-          background : colorFromHex('#34495e'),
-          text : lightText
-        }
-      },
-      buttons : {
-        default : {
-          background : activeColor,
-          text : lightText
-        },
-        secondary : {
-          background : colorFromHex('#F2F3F4'),
-          text : activeColor
-        }
-      },
-    }
-
-    this.colors.buttons.default.background = this.colors.activeColor;
-    this.colors.buttons.secondary.text = this.colors.activeColor;
+    this.colors = new GtLMSColors(this);
   }
 
   ////  Fonctions "_nomFonction()" à surcharger dans les classes filles  ////
@@ -524,7 +465,7 @@ export class GtSiteTemplate{
       if(inc !== false){
         fctNum++;
       }
-      return misc.zeroPad(fctNum, 2)+'-';
+      return zeroPad(fctNum, 2)+'-';
     }
     let site = this;
     let njsExp: any = {};

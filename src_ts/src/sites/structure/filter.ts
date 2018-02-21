@@ -1,20 +1,18 @@
 import { BasicAccessor } from "./basic_accessor";
+import { GtLMSSite } from "../GtLmsTemplate";
 
 //"use strict";
 
 //import BasicAccessor from './basic_accessor.mjs';
 
 export class FilterSideBar extends BasicAccessor{
-  sidebar: BasicAccessor;
   sidebar_toggle: BasicAccessor;
-  filters: Array<Filter>;
+  filters: Array<Filter> = [];
 
   constructor() {
     //TODO set du parent
     super(null, 'div.list-header-sidebar-button', '', 'en-tête des filtres');
-    let self = this;//Variable temporaire pour les sous-propriétés comme dans filters
-    this.sidebar = new BasicAccessor(null, 'div.list-header-sidebar-button');
-    this.sidebar_toggle = new BasicAccessor(null, 'div.toggle-sidebar-button');
+    this.sidebar_toggle = new BasicAccessor(this, 'div.toggle-sidebar-button');
     /*
     this.filters = {
       discipline : new Filter(self, 'discipline', 'DISCIPLINE', true),
@@ -26,14 +24,13 @@ export class FilterSideBar extends BasicAccessor{
 }
 
 export class Filter extends BasicAccessor{
-  //blockClass: String;
-  //opened: Boolean;
+  blockClass: String;
+  opened: Boolean;
   
-  constructor(parentSideBar: FilterSideBar, public blockClass: string, label: string, public opened: boolean) {
-    //TODO set du parent
+  constructor(parentSideBar: FilterSideBar, blockClass: string, label: string, opened: boolean) {
     super(parentSideBar, 'div.gt-meta-filter-bloc.'+blockClass, label);
-    //this.blockClass = blockClass;
-    //this.opened = opened;
+    this.blockClass = blockClass;
+    this.opened = opened;
   }
   
   get bloc() { return this.selector}
