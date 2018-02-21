@@ -7,7 +7,6 @@ import { GtLMSColors } from "./structure/site_colors";
 
 //"use strict";
 
-var misc = require('../helpers/misc.js');
 var logIndent = require('../helpers/LogIndent.js');
 //Fonction au nom très court pour une utilisation plus rapide de LogIndent dans le code
 var idt = function(){ return logIndent.indentStr();}
@@ -17,6 +16,7 @@ var idt = function(){ return logIndent.indentStr();}
 
 /*
 élément inaccessible pour le moment (exclu de this.struct pour améliorer la lisibilité :
+  {
         home : {
           cards : {
             number_1 : {
@@ -53,153 +53,23 @@ var idt = function(){ return logIndent.indentStr();}
             }
           }
         }
+  }
 */
-export class GtLMSSite{
-  accounts;
+export abstract class GtLMSSite{
+  accounts: GtLMSAccountList;
   browser: NightwatchBrowser;
   struct: GtLMSStructure;
   colors: GtLMSColors;
   constructor() {
-    this.accounts = {};
     this.browser = null;
-    /**
-    * Ensemble de sélecteurs permettant de naviguer dans la digithèque (site par défaut)
-    */
-    /*
-    this.struct = {
-      loginPage : {
-        register : 'button.auth-register',
-        login : 'button.btn-login',
-        pwdLost : 'a[ui-sref="auth.password.lost"]'
-      },
-      tabs: {
-        home : 'div.institution-infos img',
-        ressources: {
-          selector : 'a[ui-sref="app.resources"]',
-          label : 'Ressources',
-          list_header : {
-            container : 'list-header',
-            search : {
-              container : 'search div.search',
-              ico : 'i.fa-search',
-              input : '.search input[type="search"]',
-              placeholder : '.search input[type="search"]::placeholder'//pseudo-classe inaccessible ?
-            },
-            favorites_toggle : 'favorites-toggle',
-            btnNouvSeance : {
-              selector : 'button.new-module',
-              label : 'CRÉER UNE SÉANCE'
-            },
-            btnSelection : {
-              selector : 'button.basket-button',
-              label : 'Ma sélection (0)'
-            }
-          },
-          tabsCont : 'div.gt-tabs-menu',
-          tabSelected : 'div.gt-tabs-menu__item--active',
-          tabUnselected : 'div.gt-tabs-menu__item:not(.gt-tabs-menu__item--active)',
-          tabExosDocs : {
-            selector : 'div[ui-sref="app.resources"]',
-            label : 'Exercices/Documents',
-            ligneRess : {
-              tag : 'learning-object'
-            }
-          },
-          tabSeances : {
-            selector : 'div[ui-sref="app.resources.modules"]',
-            label : 'Séances',
-            ligneRess :{
-              tag : 'module'
-            }
-          },
-          tabSeancesPart : {
-            selector : 'div[ui-sref="app.resources.shared"]',
-            label : 'Séances partagées',
-            ligneRess : {
-              tag : 'module'
-            }
-          },
-          waitMsg : 'div.gt-loader',
-          ress_template : {
-            container : function(ressTag) { return ressTag},
-            cover : function(ressTag) { return this.container(ressTag) + ' div.cover'},
-            infos : function(ressTag) { return this.container(ressTag) + ' div.infos'},
-            title : function(ressTag) { return this.infos(ressTag) + ' .title'},
-            author : function(ressTag) { return this.infos(ressTag) + ' .author'},
-            description : function(ressTag) { return this.infos(ressTag) + ' .description'},
-            metas : function(ressTag) { return this.container(ressTag) + ' div.metas div.meta'},
-            actions : function(ressTag) { return this.container(ressTag) + ' div.actions'},
-            fav : function(ressTag) { return this.actions(ressTag) + ' .action.favorite i.fa-star-o'},
-            preview : function(ressTag) { return this.container(ressTag) + ' .action.lo-preview'},
-            infos_popup : function(ressTag) { return this.container(ressTag) + ' .action.lo-edit-meta2'},
-            add : function(ressTag) { return this.container(ressTag) + ' .action.lo-add'},
-            //diff avec learning-object
-            infos_popup_mod : function(ressTag) { return this.container(ressTag) + ' .action .fa-stack-2x'},
-            webreader : function(ressTag) { return this.container(ressTag) + ' .webreader a'},
-            //todo
-            more_actions : function(ressTag) { return this.container(ressTag) + ' div.dropdown-actions'},
-          },
-        },
-        mesRessources: 'a[ui-sref="app.library"]',
-        seances: 'a[ui-sref="app.assignments"]',
-        eleves: 'a[ui-sref="app.groups"]',
-        tableauBord: 'a[ui-sref="app.statistics-v2"]',
-        evalCognitives : 'a[ui-sref="app.cognitiveAssesmentInfo"]',
-        forum: 'a[gt-institution-translate="MODULE_FORUM_MENU"]',
-        msg: 'a[ui-sref="app.messaging"]',
-      },
-      user: {
-        myProfile : 'a[ui-sref="myprofile"]',
-        logout : 'a.logout'
-      },
-      filters : {
-        sidebar : 'div.list-header-sidebar-button',
-        sidebar_toggle : 'div.toggle-sidebar-button',
-        discipline : {
-          label : 'DISCIPLINE',
-          blockClass : 'discipline',
-          opened : true
-        },
-        dominante : {
-          label : 'DOMINANTE',
-          blockClass : 'dominante',
-          opened : false
-        },
-        niveau : {
-          label : 'NIVEAU',
-          blockClass : 'niveau',
-          opened : false
-        }
-      },
-      buttons : {
-        submit: 'button[type=submit]',
-        eleves : {
-          btnCreerGpElv: '[ui-sref="app.groups.create"]'
-        }
-      }
-    }
-    */
     this.struct = new GtLMSStructure(this);
-  
     this.colors = new GtLMSColors(this);
+    this.accounts = new GtLMSAccountList();
   }
-
-  ////  Fonctions "_nomFonction()" à surcharger dans les classes filles  ////
-  _siteName(){
-    return 'Template';
-  }
-  _url(){
-    return 'xxx';
-  }
-  ////  FIN Fonctions à surcharger dans les classes filles  ////
   
   ////  Accesseurs liés aux fonctions à surcharger dans les classes filles  ////
-  get siteName(){
-    return this._siteName();
-  }
-  get url(){
-    return this._url();
-  }
+  abstract get siteName();
+  abstract get url();
   ////  FIN Accesseurs liés aux fonctions à surcharger dans les classes filles  ////
 
   init(browser: NightwatchBrowser) {
@@ -495,52 +365,11 @@ export class GtLMSSite{
 
 }
 
-
-
-
-
-
-
-
-class ContentLine {
-  constructor(htmlTag) {
-    this.tag = htmlTag;
-    this.container = this.tag;
-    this.cover = this.container + ' div.cover';
-    this.infos = this.container + ' div.infos';
-    this.title = this.infos + ' .title';
-    //author : function(ressTag) { return this.infos(ressTag) + ' .author'},
-    //description : function(ressTag) { return this.infos(ressTag) + ' .description'},
-    this.metas = this.containe + ' div.metas div.meta';
-    this.actions = this.container + ' div.actions';
-    this.fav = this.actions+ ' .action.favorite i.fa-star-o';
-    //preview : function(ressTag) { return this.container(ressTag) + ' .action.lo-preview'},
-    //infos_popup : function(ressTag) { return this.container(ressTag) + ' .action.lo-edit-meta2'},
-    //add : function(ressTag) { return this.container(ressTag) + ' .action.lo-add'},
-    
-    //diff avec learning-object
-    //infos_popup_mod : function(ressTag) { return this.container(ressTag) + ' .action .fa-stack-2x'},
-    //webreader : function(ressTag) { return this.container(ressTag) + ' .webreader a'},
-    //todo
-    //more_actions : function(ressTag) { return this.container(ressTag) + ' div.dropdown-actions'},
-  }
+class GtLMSAccountList{
+  prof : GtLMSAccount;
+  eleve : GtLMSAccount;
 }
-class RessLine extends ContentLine {
-  constructor() {
-    super('learning-object');
-    this.preview = this.container + ' .action.lo-preview';
-    this.infos_popup = this.container + ' .action.lo-edit-meta2';
-    this.add = this.container + ' .action.lo-add';
-  }
-}
-class SeanceLine extends ContentLine {
-  constructor() {
-    super('module');
-    this.infos_popup = this.container + ' .action .fa-stack-2x';
-    //infos_popup_mod : function(ressTag) { return this.container(ressTag) + ' .action .fa-stack-2x'},
-    this.webreader = this.container + ' .webreader a';
-    //todo
-    this.more_actions = this.container + ' div.dropdown-actions .dropdown-handler i';
-    this.actions_menu = this.container + ' div.dropdown-menu';
-  }
+class GtLMSAccount{
+  login : string;
+  password : string;
 }

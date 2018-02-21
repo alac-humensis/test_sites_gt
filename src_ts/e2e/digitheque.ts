@@ -1,4 +1,4 @@
-import { GtSiteStructure } from "../src/sites/structure/site_structure";
+import { GtLMSStructure } from "../src/sites/structure/site_structure";
 
 //import { GtSiteStructure } from "../src/sites/structure/site_structure";
 
@@ -6,7 +6,7 @@ import { GtSiteStructure } from "../src/sites/structure/site_structure";
 
 var misc = require('../src_ts/helpers/misc.js');
 
-var t = new GtSiteStructure(null);
+var t = new GtLMSStructure(null);
 
 /**
  * Ensemble de sélecteurs permettant de naviguer dans la digithèque

@@ -1,37 +1,22 @@
-import { GtSiteTemplate } from "./GtLmsTemplate";
+import { GtLMSSite } from "./GtLmsTemplate";
+import { Filter } from "./structure/filter";
 
-//"use strict";
-
-//var misc = require('../helpers/misc.js');
-
-
-//import SiteTemplate from './GtLmsTemplate';
-
-export class Digitheque extends GtSiteTemplate {
+export class Digitheque extends GtLMSSite {
   constructor() {
     super();
-    this.accounts = {
-      prof : {
-        login : 'alexandre.lac@editions-belin.fr',
-        password : 'Digitest'
-      }
-    }
+    this.struct.filterSidebar.filters.push(new Filter(this.struct.filterSidebar, 'discipline', 'DISCIPLINE', true));
+    this.struct.filterSidebar.filters.push(new Filter(this.struct.filterSidebar, 'dominante', 'DOMINANTE', false));
+    this.struct.filterSidebar.filters.push(new Filter(this.struct.filterSidebar, 'niveau', 'NIVEAU', false));
+    this.accounts.prof.login = 'alexandre.lac@editions-belin.fr';
+    this.accounts.prof.password = 'Digitest';
   }
-  ////  Fonctions "_nomFonction()" à surcharger dans les classes filles  ////
-  _siteName(){
+  ////  Fonctions à surcharger dans les classes filles  ////
+  get siteName(){
     return 'Digithèque';
   }
-  _url(){
+  get url(){
     return 'http://enseignant.digitheque-belin.fr';
   }
   ////  FIN Fonctions à surcharger dans les classes filles  ////
 
 }
-
-
-/*
-var Digitheque_inst = new Digitheque();
-module.exports = Digitheque_inst;
-
-export default Digitheque;
-*/
