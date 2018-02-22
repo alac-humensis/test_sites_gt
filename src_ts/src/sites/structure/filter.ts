@@ -1,50 +1,74 @@
 import { BasicAccessor } from "./basic_accessor";
 import { GtLMSSite } from "../GtLmsTemplate";
+import { GtLMSColors } from "./site_colors";
+import { colorFromHex, Color } from "../../helpers/color";
 
 //"use strict";
 
 //import BasicAccessor from './basic_accessor.mjs';
 
 export class FilterSideBar extends BasicAccessor{
+  lmsColors: GtLMSColors;
   sidebar_toggle: BasicAccessor;
   filters: Array<Filter> = [];
 
-  constructor() {
+  constructor(lmsColors: GtLMSColors) {
     //TODO set du parent
     super(null, 'div.list-header-sidebar-button', '', 'en-tête des filtres');
+    this.lmsColors = lmsColors;
     this.sidebar_toggle = new BasicAccessor(this, 'div.toggle-sidebar-button');
-    /*
-    this.filters = {
-      discipline : new Filter(self, 'discipline', 'DISCIPLINE', true),
-      dominante : new Filter(self, 'dominante', 'DOMINANTE', false),
-      niveau : new Filter(self, 'niveau', 'NIVEAU', false)
-    }
-    */
   }
 }
 
+/** 
+ * @description Filtre à tester représentatif du site
+ * @default
+ * cf site.colors.filters
+ * puce.colors.texte = site.colors.filters.puces;
+*/
 export class Filter extends BasicAccessor{
   blockClass: String;
   opened: Boolean;
+  header : FilterHeader;
+  values : BasicAccessor;
+  item : BasicAccessor;
+  itemCheckBoxOn : BasicAccessor;
+  itemCheckBoxOff : BasicAccessor;
+  itemCheckBox : BasicAccessor;
+  itemTitle : BasicAccessor;
+  itemCount : BasicAccessor;
   
-  constructor(parentSideBar: FilterSideBar, blockClass: string, label: string, opened: boolean) {
-    super(parentSideBar, 'div.gt-meta-filter-bloc.'+blockClass, label);
+  constructor(site: GtLMSSite, blockClass: string, title: string, opened: boolean, headerBackground: Color, titleColor: Color) {
+    super(site.struct.filterSidebar, 'div.gt-meta-filter-bloc.'+blockClass, title);
     this.blockClass = blockClass;
     this.opened = opened;
+    this.header = new FilterHeader(this, title, headerBackground, titleColor);
+    this.values = new BasicAccessor(this, this.blockClass+' div.gt-meta-filter-values');
+    this.item = new BasicAccessor(this, this.blockClass+' div.gt-meta-filter-item');
+    this.itemCheckBoxOn = new BasicAccessor(this, this.blockClass+' i.fa-check-square');
+    this.itemCheckBoxOff = new BasicAccessor(this, this.blockClass+'  i.fa-square');
+    this.itemCheckBox = new BasicAccessor(this, this.itemCheckBoxOff.selector +', '+this.itemCheckBoxOn.selector);
+    this.itemTitle = new BasicAccessor(this, this.blockClass+' span.name');
+    this.itemCount = new BasicAccessor(this, this.blockClass+' span.nb-value');
   }
-  
-  get bloc() { return this.selector}
-  get background() { return this.bloc+' div.gt-meta-filter-name'}
-  get title() { return this.bloc+' div.title'}
-  get unselect() { return this.bloc+' .gt-meta-filter-cancel span'}
-  get collapse() { return this.bloc+' .gt-meta-filter-collapse'}
-  get puce() { return this.collapse+' i'}
-    //puce_old: function(blockClass) { return this.bloc(blockClass)+' .fa-chevron-circle-down, '+this.bloc(blockClass)+' .fa-chevron-circle-right'},
-  get values() { return this.bloc+' div.gt-meta-filter-values'}
-  get item() { return this.values+' div.gt-meta-filter-item'}
-  get itemCheckBoxOn() { return this.item+' i.fa-check-square' }
-  get itemCheckBoxOff() { return this.item+'  i.fa-square' }
-  get itemCheckBox() { return this.itemCheckBoxOff+', '+this.itemCheckBoxOn }
-  get itemTitle() { return this.item+' span.name'}
-  get itemCount() { return this.item+' span.nb-value'}
+  get parentSideBar(): FilterSideBar{
+    return <FilterSideBar>this.parent;
+  }
+}
+
+class FilterHeader extends BasicAccessor{
+  title : BasicAccessor;
+  unselect : BasicAccessor;
+  collapse : BasicAccessor;
+  puce : BasicAccessor;
+  constructor(parent: Filter, title: string, headerBackground: Color, titleColor: Color) {
+    super(parent, parent.selector+' div.gt-meta-filter-name', '', 'en-tête du filtre '+title, headerBackground);
+    this.title = new BasicAccessor(this, parent.selector+' div.title', title, '', this.colors.background, titleColor);
+    this.unselect = new BasicAccessor(this, parent.selector+' .gt-meta-filter-cancel span', 'Déselectionner', '', null, titleColor);
+    this.collapse = new BasicAccessor(this, parent.selector+' .gt-meta-filter-collapse');
+    this.puce = new BasicAccessor(this, parent.selector+' i', '', 'la puce/ouverture', null, parent.parentSideBar.lmsColors.filters.puces);
+  }
+}
+class FilterItem extends BasicAccessor{
+
 }

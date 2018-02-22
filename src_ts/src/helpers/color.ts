@@ -4,6 +4,9 @@ function componentToHex(c: number): string {
 }
 function hexToRgb(hex: string): RgbColor {
     // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
+    if(hex.length < 3){
+        return null;
+    }
     var shorthandRegex: RegExp = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
     hex = hex.replace(shorthandRegex, function(m, r, g, b) {
         return r + r + g + g + b + b;
@@ -26,7 +29,7 @@ class RgbColor{
 }
 
 export class Color extends RgbColor{
-    hexColor: String;
+    hexColor: string;
     constructor(public r: number=0, public g:number=0, public b: number=0){
         super(r, g, b);
         this.initFromRgb(r,g,b);

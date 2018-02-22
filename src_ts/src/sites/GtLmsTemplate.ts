@@ -5,8 +5,6 @@ import { NightwatchBrowser } from "../nightwatch";
 import { zeroPad } from "../helpers/misc";
 import { GtLMSColors } from "./structure/site_colors";
 
-//"use strict";
-
 var logIndent = require('../helpers/LogIndent.js');
 //Fonction au nom très court pour une utilisation plus rapide de LogIndent dans le code
 var idt = function(){ return logIndent.indentStr();}
@@ -57,19 +55,43 @@ var idt = function(){ return logIndent.indentStr();}
 */
 export abstract class GtLMSSite{
   accounts: GtLMSAccountList;
-  browser: NightwatchBrowser;
   struct: GtLMSStructure;
   colors: GtLMSColors;
+  browser: NightwatchBrowser;
+
   constructor() {
     this.browser = null;
     this.struct = new GtLMSStructure(this);
     this.colors = new GtLMSColors(this);
     this.accounts = new GtLMSAccountList();
+    this.initColors();
+    this.initFilters();
+    this.initTabs();
   }
   
   ////  Accesseurs liés aux fonctions à surcharger dans les classes filles  ////
   abstract get siteName();
-  abstract get url();
+  //abstract get url();
+
+  /** 
+   * Init 01 - Initialize all common colors used by many elements. Specific / unique colors can be set directly in the structure elements (cf this.struct and BasicAccessor class)
+  */
+  abstract initColors();
+  
+  /** 
+   * Init 02 - Add this site's specific filters to this.struct.filterSidebar.filters array
+  */
+  abstract initFilters();
+
+  /** 
+   * Init 03 - Enable or not the site's tabs and their sub elements colors
+  */
+  abstract initTabs();
+  
+  /** 
+   * Init 04 - Fill teacher end pupil info (url, login, password)
+  */
+  abstract initAccounts();
   ////  FIN Accesseurs liés aux fonctions à surcharger dans les classes filles  ////
 
   init(browser: NightwatchBrowser) {
@@ -370,6 +392,7 @@ class GtLMSAccountList{
   eleve : GtLMSAccount;
 }
 class GtLMSAccount{
+  url : string;
   login : string;
   password : string;
 }

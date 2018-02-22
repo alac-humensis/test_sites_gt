@@ -1,7 +1,5 @@
-import { Color } from "../../helpers/color";
+import { Color, colorFromHex } from "../../helpers/color";
 import { BasicCssColors } from "./site_colors";
-
-//"use strict";
 
 export class BasicAccessor{
   selector: string;
@@ -10,10 +8,11 @@ export class BasicAccessor{
   logLabel: string;
   activated: boolean;
 
-  constructor(protected parent: BasicAccessor, cssSelector: string, displayedText: string='', logLabel: string='') {
+  constructor(protected parent: BasicAccessor, cssSelector: string, displayedText: string='', logLabel: string='',
+                        backgroundColor: Color=null, textColor: Color=null, borderColor: Color=null) {
     this.selector = cssSelector;
-    this.colors = new BasicCssColors();
-    this.text = (displayedText === undefined) ? '' : displayedText;
+    this.colors = new BasicCssColors(backgroundColor, textColor, borderColor);
+    this.text = displayedText;
     this.logLabel = logLabel;//Pour le log dans Nightwatch
     this.activated = true;//Propriété pour indiquer si l'élément est activé/visible ou non sur le site
   }
