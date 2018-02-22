@@ -5,9 +5,6 @@ import { colorFromHex } from "../helpers/color";
 export class Digitheque extends GtLMSSite {
   constructor() {
     super();
-    this.accounts.prof.url = 'http://enseignant.digitheque-belin.fr';
-    this.accounts.prof.login = 'alexandre.lac@editions-belin.fr';
-    this.accounts.prof.password = 'Digitest';
   }
   ////  Fonctions à surcharger dans les classes filles  ////
   get siteName(){
@@ -39,7 +36,9 @@ export class Digitheque extends GtLMSSite {
   }
 
   initAccounts(){
-    //TODO
+    this.accounts.prof.url = 'http://enseignant.digitheque-belin.fr';
+    this.accounts.prof.login = 'alexandre.lac@editions-belin.fr';
+    this.accounts.prof.password = 'Digitest';
   }
   ////  FIN Fonctions à surcharger dans les classes filles  ////
 

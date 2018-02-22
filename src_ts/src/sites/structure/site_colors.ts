@@ -32,7 +32,7 @@ class GtLMSSpecificItemColor{
 }
 
 class GtLMSFiltersColors extends GtLMSSpecificItemColor{
-  activeColor : Color = colorFromHex('#0298ca');
+  activeColor : Color;
   /**
    * @default
    * main.activeColor
@@ -42,7 +42,8 @@ class GtLMSFiltersColors extends GtLMSSpecificItemColor{
 
   constructor(lmsColors: GtLMSColors){
     super(lmsColors);
-    this.puces = this.lmsColors.main.activeColor;
+    this.activeColor = colorFromHex('#0298ca');
+    this.puces = lmsColors.main.activeColor;
     this.items = new GtLMSFilterItemsColors(lmsColors);
   }
 }
@@ -83,10 +84,13 @@ class GtLMSFilterItemsColors extends GtLMSSpecificItemColor{
     this.unselected = new GtLMSFilterItemColors(lmsColors);
     //Ligne(=filtre) sélectionnée
     this.selected = new GtLMSFilterItemColors(lmsColors);
+    /*
+    // L'appel à lmsColors.filters n'est pas encore OK dans le constructeur
     this.selected.checkbox = lmsColors.filters.activeColor;
     this.selected.text = lmsColors.filters.activeColor;
     this.selected.count.background = lmsColors.filters.activeColor;
     this.selected.count.text = lmsColors.main.lightText;
+    */
   }
 }
 /** 
@@ -146,7 +150,7 @@ export class GtLMSColors{
    * cls.buttons.default.background = cls.main.activeColor;//= default button by default value
    * cls.main.activeColor.initFromHex('#00aa55');//Will affect default button background
    */
-  main : GtLMSMainColors = new GtLMSMainColors();
+  main : GtLMSMainColors;
   /**
    * @description Common filters colors
    * @example
@@ -158,10 +162,18 @@ export class GtLMSColors{
    * cls.items.unselected.text.initFromHex('#2c3e50');
    * cls.items.unselected.count.background.initFromHex('#757575');
    */
-  filters : GtLMSFiltersColors = new GtLMSFiltersColors(this);
-  buttons : GtLMSButtonsColors = new GtLMSButtonsColors(this);
+  filters : GtLMSFiltersColors;
+  buttons : GtLMSButtonsColors;
 
-  constructor(protected site: GtLMSSite) {
-    this.filters.items.unselected.count;
+  constructor() {
+    this.main = new GtLMSMainColors();
+
+    this.filters = new GtLMSFiltersColors(this);
+    this.filters.items.selected.checkbox = this.filters.activeColor;
+    this.filters.items.selected.text = this.filters.activeColor;
+    this.filters.items.selected.count.background = this.filters.activeColor;
+    this.filters.items.selected.count.text = this.main.lightText;
+    
+    this.buttons = new GtLMSButtonsColors(this);
   }
 }

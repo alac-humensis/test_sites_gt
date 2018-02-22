@@ -2,8 +2,9 @@ import { colorFromHex } from "../helpers/color";
 import { Digitheque } from "./Digitheque";
 
 //"use strict";
-
+/*
 var misc = require('../helpers/misc.js');
+
 var Cahiers_elts = {
   tabs: {
     home : 'div.institution-infos img',
@@ -211,50 +212,35 @@ var Cahiers_colors = {
     }
   }
 }
-
+*/
 //import Digitheque from './Digitheque';
 //import BasicColors from './ui_accessors/basic_accessor.mjs';
 
 class Cahiers extends Digitheque {
   constructor() {
     super();
-    // TODO elts et colors
-    /*
-    this.struct = Digitheque_elts;
-    this.colors = Digitheque_colors;
-    */
-    this.colors.activeColor.assign(colorFromHex('#11c3cc'));
-    this.accounts = {
-      prof : {
-        login : 'agnese.lega',
-        password : '7qAGAtuU'
-      }
-    }
-    //TODO : paramétrer les tests à effectuer
-    //this.struct.buttons.loginPage.register = undefined;
-    delete this.struct.loginPage.register;
-    //this.struct.buttons.
-    this.struct.common.elts.filterSidebar.text = 'test';
-    //console.log(this.struct.common.elts.filterSidebar);
-    this.struct.common.elts.filterSidebar.filters.niveau.opened = true;
-    // Ressources : Désactivation des tests sur les sous-onglets Exos-Docs / Séances / Séances partagées
-    var ressTab = this.struct.tabs.ressources;
-    delete ressTab.tabsCont;
-    delete ressTab.tabSelected;
-    delete ressTab.tabUnselected;
-    delete ressTab.tabSeances;
-    delete ressTab.tabSeancesPart;
-    ressTab.list_header.btnNouvSeance.label = 'Créer un parcours';
-    //this.defColors = new BasicColors();
-    //this.defColors.background
   }
   ////  Fonctions "_nomFonction()" à surcharger dans les classes filles  ////
-  _siteName(){
+  get siteName(){
     return 'Cahiers connectés';
   }
+  /*
   _url(){
     return 'http://belin.cahiersconnectes.fr/';
   }
+  */
+ initColors(){
+   //TODO
+ }
+ initFilters(){
+   //TODO
+ }
+ initTabs(){
+   //TODO
+ }
+ initAccounts(){
+   //TODO
+ }
   ////  FIN Fonctions à surcharger dans les classes filles  ////
 
 }

@@ -58,7 +58,7 @@ export class Color extends RgbColor{
     get rgbaCssString(): string{
         return 'rgba('+this.r+', '+this.g+', '+this.b+', 1)';
     }
-    CssString(browser): string{
+    cssString(browser): string{
         let browserName: string = browser.options.desiredCapabilities.browserName;
         let rgba = browserName.toLowerCase() == 'chrome';
         return (rgba ? this.rgbaCssString : this.rgbCssString);

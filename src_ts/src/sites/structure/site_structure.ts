@@ -15,9 +15,9 @@ export class GtLMSStructure{
 
   constructor(site: GtLMSSite) {
     this.site = site;
-    this.filterSidebar = new FilterSideBar();
+    this.filterSidebar = new FilterSideBar(site.colors);
     this.buttons = new GtLMSCommonButtons();
-    this.loginPage = new GtLMSLoginPage();
+    this.loginPage = new GtLMSLoginPage(site);
     this.tabs = new GtLMSTabs();
     this.user = new GtLMSUser(null, 'div.user-menu-content', '', 'Menu Utilisateur');
   }

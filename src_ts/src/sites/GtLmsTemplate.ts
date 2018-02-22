@@ -4,6 +4,8 @@ import { Filter } from "./structure/filter";
 import { NightwatchBrowser } from "../nightwatch";
 import { zeroPad } from "../helpers/misc";
 import { GtLMSColors } from "./structure/site_colors";
+import { BasicAccessor } from "./structure/basic_accessor";
+import { LogIndent } from "../helpers/LogIndent";
 
 var logIndent = require('../helpers/LogIndent.js');
 //Fonction au nom très court pour une utilisation plus rapide de LogIndent dans le code
@@ -53,20 +55,29 @@ var idt = function(){ return logIndent.indentStr();}
         }
   }
 */
+
+export class TestContext{
+  browser: NightwatchBrowser = null;
+  logIndent: LogIndent = new LogIndent();
+}
+
 export abstract class GtLMSSite{
   accounts: GtLMSAccountList;
   struct: GtLMSStructure;
   colors: GtLMSColors;
-  browser: NightwatchBrowser;
+  //browser: NightwatchBrowser;
+  testContext: TestContext;
 
   constructor() {
-    this.browser = null;
+    //this.browser = null;
+    this.colors = new GtLMSColors();
     this.struct = new GtLMSStructure(this);
-    this.colors = new GtLMSColors(this);
     this.accounts = new GtLMSAccountList();
+    this.testContext = new TestContext();
     this.initColors();
     this.initFilters();
     this.initTabs();
+    this.initAccounts();
   }
   
   ////  Accesseurs liés aux fonctions à surcharger dans les classes filles  ////
@@ -95,7 +106,7 @@ export abstract class GtLMSSite{
   ////  FIN Accesseurs liés aux fonctions à surcharger dans les classes filles  ////
 
   init(browser: NightwatchBrowser) {
-    this.browser = browser;
+    this.testContext.browser = browser;
     browser
       //.url('http://enseignant.digitheque-belin.fr')
       .url('https://www.google.fr')
@@ -104,6 +115,16 @@ export abstract class GtLMSSite{
 
     //console.log('colors.activeColor = '+this.colors.activeColor.hexColor);
     //console.log('colors.filters.puces = '+this.colors.filters.puces.hexColor);
+  }
+
+  get browser(): NightwatchBrowser{
+    return this.testContext.browser;
+  }
+  get logIdt(): any{
+    return this.testContext.logIndent;
+  }
+  idt(){
+    return this.testContext.logIndent.indentStr();
   }
 
   /**
@@ -129,34 +150,38 @@ export abstract class GtLMSSite{
     }
     this.browser.verify.cssProperty(this.__cssDest(elt), testProp, color.cssString(this.browser), (msg !== undefined ? idt()+msg : msg));
   }
+
+  checkElements(eltsArray: Array<BasicAccessor>){
+    eltsArray.forEach( (elt: BasicAccessor, index: number) => {
+        elt.checkProperties(this.testContext);
+      }
+    );
+  }
   
   login() {
     let browser = this.browser;
     browser
-      .url(this.url)
+      .url(this.accounts.prof.url)
       .waitForElementVisible('body', 5000)
       .waitForElementVisible('#gt-placeholder-0', 15000);
     
     //Je n'arrive pas à trouver la couleur du texte dans le place-holder
     //browser.verify.cssProperty('#gt-placeholder-7', 'background-color', 'rgb('+selColor.r+', '+selColor.g+', '+selColor.b+')', 'Vérification de la couleur du fond du bouton "S\'enregistrer"');
     let loginPage = this.struct.loginPage;
+    /*
     this.checkColor(loginPage.register, 'bg', this.colors.buttons.secondary.background, 'Vérification de la couleur du fond du bouton "S\'enregistrer"');
     this.checkColor(loginPage.register, 'text', this.colors.buttons.secondary.text, 'Vérification de la couleur du texte du bouton "S\'enregistrer"');
     this.checkColor(loginPage.login, 'bg', this.colors.buttons.default.background, 'Vérification de la couleur du fond du bouton "Se connecter"');
     this.checkColor(loginPage.login, 'text', this.colors.buttons.default.text, 'Vérification de la couleur du texte du bouton "Se connecter"');
     this.checkColor(loginPage.pwdLost, 'text', this.colors.activeColor, 'Vérification de la couleur du texte "Mot de passe oublié ?"');
-    /*
-    browser.verify.cssProperty(this.struct.buttons.loginPage.register, 'background-color', this.colors.buttons.secondary.background.cssString(browser), 'Vérification de la couleur du fond du bouton "S\'enregistrer"');
-    browser.verify.cssProperty(this.struct.buttons.loginPage.register, 'color', this.colors.buttons.secondary.text.cssString(browser), 'Vérification de la couleur du texte du bouton "S\'enregistrer"');
-    browser.verify.cssProperty(this.struct.buttons.loginPage.login, 'background-color', this.colors.buttons.default.background.cssString(browser), 'Vérification de la couleur du fond du bouton "Se connecter"');
-    browser.verify.cssProperty(this.struct.buttons.loginPage.login, 'color', this.colors.buttons.default.text.cssString(browser), 'Vérification de la couleur du texte du bouton "Se connecter"');
-    browser.verify.cssProperty(this.struct.buttons.loginPage.pwdLost, 'color', this.colors.activeColor.cssString(browser), 'Vérification de la couleur du texte "Mot de passe oublié ?"');
     */
+    this.checkElements([loginPage.login, loginPage.register, loginPage.pwdLost]);
     this.__logIn(this.accounts.prof, true);
   }
 
   //'Vérification des couleurs'(browser) {
   checkColors() {
+    /* TODO
       let browser = this.browser;
         //home(browser);
       ////  ACCUEIL  ////
@@ -170,6 +195,7 @@ export abstract class GtLMSSite{
 
       this.checkColor('.menu-item.active a', 'text', this.colors.activeColor, 'Couleur du texte de l\'onglet actif');
       this.checkColor('.menu-item:not(.active) a', 'text', this.colors.inactiveColor, 'Couleur du texte de l\'onglet inactif');
+      */
   }
   
 
@@ -178,7 +204,7 @@ export abstract class GtLMSSite{
     return elt.hasOwnProperty('selector') ? elt.selector : elt;
   }
   __home(){
-    this.browser.click(this.struct.tabs.home);
+    this.browser.click(this.struct.tabs.home.selector);
     this.browser.pause(500);
   }
 
@@ -196,22 +222,24 @@ export abstract class GtLMSSite{
     }
     else{
       browser.setValue('#gt-placeholder-1', account.prof.password);
-      browser.click(this.struct.common.elts.buttons.submit);
+      //browser.click(this.struct.loginPage.elts.buttons.submit);TODO common elts ?
+      browser.click(this.struct.loginPage.login.selector);
     }
-    browser.waitForElementVisible(this.struct.tabs.home, 10000, 'Attente d\'affichage de l\'accueil (%s) : %d ms');
+    browser.waitForElementVisible(this.struct.tabs.home.selector, 10000, 'Attente d\'affichage de l\'accueil (%s) : %d ms');
   }
 
   __logOut(){
     let browser = this.browser;
     browser.execute("document.querySelector('div.user-menu-content').style.setProperty('display', 'block', 'important');");
-    browser.waitForElementVisible(this.struct.user.logout, 1000);
-    browser.click(this.struct.user.logout);
+    browser.waitForElementVisible(this.struct.user.logout.selector, 1000);
+    browser.click(this.struct.user.logout.selector);
   }
 
+  /* TODO
   __checkRessTabColors(){
     let site = this;
     let elts = this.struct;
-    let filterSidebar = this.struct.common.elts.filterSidebar;
+    let filterSidebar = this.struct.filterSidebar;
     let colors = this.colors;
     let browser = this.browser;
     let mainTab = this.struct.tabs.ressources;
@@ -255,20 +283,6 @@ export abstract class GtLMSSite{
         //browser.waitForElementVisible(tpl.item(bclass), 1000, idt()+'Vérification d\'une ligne cochée'+filtre);
         browser.waitForElementVisible(subTab.ligneRess.tag, 10000, idt()+'Vérification d\'une ligne cochée'+filtre);
         //TODO vérification de l'affichage d'un ressource
-        /*
-        ress_template : {
-          container : function(ressTag) { return ressTag},
-          cover : function(ressTag) { return this.container(ressTag) + ' div.cover'},
-          infos : function(ressTag) { return this.container(ressTag) + ' div.infos'},
-          title : function(ressTag) { return this.infos(ressTag) + ' .title'},
-          metas : function(ressTag) { return this.container(ressTag) + ' div.metas div.meta'},
-          actions : function(ressTag) { return this.container(ressTag) + ' div.actions'},
-          fav : function(ressTag) { return this.actions(ressTag) + ' .action.favorite i.fa-star-o'},
-          preview : function(ressTag) { return this.container(ressTag) + ' .action.lo-preview'},
-          infos_popup : function(ressTag) { return this.container(ressTag) + ' .action.lo-edit-meta2'},
-          add : function(ressTag) { return this.container(ressTag) + ' .actions.lo-add'},
-        },
-        */
         logIndent.Inc();
         site.checkColor(tpl.itemCheckBox, 'text', colors.filters.item.selected.checkbox, 'Couleur d\'une case cochée d\'une ligne'+filtre);
         site.checkColor(tpl.itemTitle, 'text', colors.filters.item.selected.text, 'Couleur de l\'intitulé d\'une ligne'+filtre);
@@ -347,6 +361,7 @@ export abstract class GtLMSSite{
     logIndent.Dec();
     logIndent.Dec();
   }
+  */
   ////  FIN Fonction __ = Fonctions utilitaires "protected"  ////
   
   /**
@@ -374,7 +389,7 @@ export abstract class GtLMSSite{
     
     njsExp.after = function(browser: NightwatchBrowser) {
         if(browser.options.desiredCapabilities.browserName == 'MicrosoftEdge'){
-          browser.click(site.elts.user.logout);
+          browser.click(site.struct.user.logout.selector);
           browser.deleteCookies(function() {
             console.log('Suppression des cookies pour Edge');
           });
@@ -388,8 +403,8 @@ export abstract class GtLMSSite{
 }
 
 class GtLMSAccountList{
-  prof : GtLMSAccount;
-  eleve : GtLMSAccount;
+  prof : GtLMSAccount = new GtLMSAccount();
+  eleve : GtLMSAccount = new GtLMSAccount();
 }
 class GtLMSAccount{
   url : string;
