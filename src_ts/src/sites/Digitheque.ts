@@ -33,6 +33,7 @@ export class Digitheque extends GtLMSSite {
 
   initTabs(){
     //TODO
+    this.struct.loginPage.pwdLost.url = 'http://enseignant.digitheque-belin.fr/#/password/lost';
   }
 
   initAccounts(){

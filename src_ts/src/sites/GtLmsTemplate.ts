@@ -65,11 +65,10 @@ export abstract class GtLMSSite{
   accounts: GtLMSAccountList;
   struct: GtLMSStructure;
   colors: GtLMSColors;
-  //browser: NightwatchBrowser;
+
   testContext: TestContext;
 
   constructor() {
-    //this.browser = null;
     this.colors = new GtLMSColors();
     this.struct = new GtLMSStructure(this);
     this.accounts = new GtLMSAccountList();
@@ -82,7 +81,6 @@ export abstract class GtLMSSite{
   
   ////  Accesseurs liés aux fonctions à surcharger dans les classes filles  ////
   abstract get siteName();
-  //abstract get url();
 
   /** 
    * Init 01 - Initialize all common colors used by many elements. Specific / unique colors can be set directly in the structure elements (cf this.struct and BasicAccessor class)
@@ -108,13 +106,8 @@ export abstract class GtLMSSite{
   init(browser: NightwatchBrowser) {
     this.testContext.browser = browser;
     browser
-      //.url('http://enseignant.digitheque-belin.fr')
       .url('https://www.google.fr')
       .waitForElementVisible('body', 5000, true, undefined, 'Navigateur '+browser.options.desiredCapabilities.browserName);
-    //browser.end();
-
-    //console.log('colors.activeColor = '+this.colors.activeColor.hexColor);
-    //console.log('colors.filters.puces = '+this.colors.filters.puces.hexColor);
   }
 
   get browser(): NightwatchBrowser{
@@ -151,6 +144,10 @@ export abstract class GtLMSSite{
     this.browser.verify.cssProperty(this.__cssDest(elt), testProp, color.cssString(this.browser), (msg !== undefined ? idt()+msg : msg));
   }
 
+  /**
+   * Lancement de la vérification du texte et des couleurs pour tous les éléments passés en paramètres
+   * @param eltsArray {Array<BasicAccessor>} Tableau d'éléments à vérifier
+   */
   checkElements(eltsArray: Array<BasicAccessor>){
     eltsArray.forEach( (elt: BasicAccessor, index: number) => {
         elt.checkProperties(this.testContext);
@@ -168,13 +165,6 @@ export abstract class GtLMSSite{
     //Je n'arrive pas à trouver la couleur du texte dans le place-holder
     //browser.verify.cssProperty('#gt-placeholder-7', 'background-color', 'rgb('+selColor.r+', '+selColor.g+', '+selColor.b+')', 'Vérification de la couleur du fond du bouton "S\'enregistrer"');
     let loginPage = this.struct.loginPage;
-    /*
-    this.checkColor(loginPage.register, 'bg', this.colors.buttons.secondary.background, 'Vérification de la couleur du fond du bouton "S\'enregistrer"');
-    this.checkColor(loginPage.register, 'text', this.colors.buttons.secondary.text, 'Vérification de la couleur du texte du bouton "S\'enregistrer"');
-    this.checkColor(loginPage.login, 'bg', this.colors.buttons.default.background, 'Vérification de la couleur du fond du bouton "Se connecter"');
-    this.checkColor(loginPage.login, 'text', this.colors.buttons.default.text, 'Vérification de la couleur du texte du bouton "Se connecter"');
-    this.checkColor(loginPage.pwdLost, 'text', this.colors.activeColor, 'Vérification de la couleur du texte "Mot de passe oublié ?"');
-    */
     this.checkElements([loginPage.login, loginPage.register, loginPage.pwdLost]);
     this.__logIn(this.accounts.prof, true);
   }

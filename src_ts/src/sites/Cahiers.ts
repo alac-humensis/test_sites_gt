@@ -237,6 +237,7 @@ class Cahiers extends Digitheque {
  }
  initTabs(){
    //TODO
+    this.struct.loginPage.pwdLost.url = 'https://www.edulib.fr/users/password/new';
  }
  initAccounts(){
    //TODO

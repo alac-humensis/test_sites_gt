@@ -7,6 +7,7 @@ export class BasicAccessor{
   selector: string;
   colors: BasicCssColors;
   text: string;
+  url: string;
   logLabel: string;
   activated: boolean;
 
@@ -17,6 +18,7 @@ export class BasicAccessor{
     this.text = displayedText;
     this.logLabel = logLabel;//Pour le log dans Nightwatch
     this.activated = true;//Propriété pour indiquer si l'élément est activé/visible ou non sur le site
+    this.url = '';
   }
   
   get isActivated() { 
@@ -50,6 +52,7 @@ export class BasicAccessor{
     if(!this._checkActivation()) return;
     this.checkColors(ctx);
     this.checkText(ctx);
+    this.checkUrl(ctx);
   }
   checkColors(ctx: TestContext){
     if(!this._checkActivation()) return;
@@ -96,6 +99,13 @@ export class BasicAccessor{
 
   checkText(ctx: TestContext){
     if(!this._checkActivation()) return;
+    if(this.text.length == 0) return;
     ctx.browser.verify.containsText(this.selector, this.text, this._getLogMsgIndented(ctx, 'Vérification du texte du bouton '));
+  }
+
+  checkUrl(ctx: TestContext){
+    if(!this._checkActivation()) return;
+    if(this.url.length == 0) return;
+    ctx.browser.verify.attributeEquals(this.selector, 'href', this.url, this._getLogMsgIndented(ctx, 'Vérification du lien '));
   }
 }
