@@ -1477,6 +1477,7 @@ export interface NightwatchAPI {
      * (e.g. Element %s was not in the page for %d ms).
      */
     waitForElementNotPresent(selector: string, time?: number, abortOnFailure?: boolean, callback?: () => void, message?: string): this;
+    waitForElementNotPresent(selector: string, time?: number, message?: string): this;
 
     /**
      * Opposite of waitForElementVisible. Waits a given time in milliseconds for an element to be not visible (i.e. hidden but existing) in the page before performing
@@ -1499,6 +1500,7 @@ export interface NightwatchAPI {
      * (e.g. Element %s was not in the page for %d ms).
      */
     waitForElementNotVisible(selector: string, time?: number, abortOnFailure?: boolean, callback?: () => void, message?: string): this;
+    waitForElementNotVisible(selector: string, time?: number, message?: string): this;
 
     /**
      * Waits a given time in milliseconds for an element to be present in the page before performing any other commands or assertions.
@@ -1532,6 +1534,7 @@ export interface NightwatchAPI {
      * (e.g. Element %s was not in the page for %d ms).
      */
     waitForElementPresent(selector: string, time?: number, abortOnFailure?: boolean, callback?: () => void, message?: string): this;
+    waitForElementPresent(selector: string, time?: number, message?: string): this;
 
     /**
      * Waits a given time in milliseconds for an element to be visible in the page before performing any other commands or assertions.

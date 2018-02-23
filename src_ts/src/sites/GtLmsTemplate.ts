@@ -6,10 +6,16 @@ import { zeroPad } from "../helpers/misc";
 import { GtLMSColors } from "./structure/site_colors";
 import { BasicAccessor } from "./structure/basic_accessor";
 import { LogIndent } from "../helpers/LogIndent";
+import { NightwatchTestManager } from "./test_cases/test_manager";
+import { TestLogin } from "./test_cases/test_login";
+import { GtLMSTabs, GtLMSTab } from "./structure/main_page";
+import { TestTabRessources } from "./test_cases/test_tab_ressources";
 
+/*
 var logIndent = require('../helpers/LogIndent.js');
 //Fonction au nom très court pour une utilisation plus rapide de LogIndent dans le code
 var idt = function(){ return logIndent.indentStr();}
+*/
 
 //import GtSiteStructure from './ui_accessors/site_structure.mjs';
 //import Filter from './ui_accessors/filter.mjs';
@@ -67,19 +73,21 @@ export abstract class GtLMSSite{
   colors: GtLMSColors;
 
   testContext: TestContext;
+  testMng: NightwatchTestManager;
 
   constructor() {
     this.colors = new GtLMSColors();
     this.struct = new GtLMSStructure(this);
     this.accounts = new GtLMSAccountList();
     this.testContext = new TestContext();
+    this.testMng = new NightwatchTestManager(this);
     this.initColors();
     this.initFilters();
     this.initTabs();
     this.initAccounts();
   }
   
-  ////  Accesseurs liés aux fonctions à surcharger dans les classes filles  ////
+  ////  Méthodes et Accesseurs à surcharger dans les classes filles  ////
   abstract get siteName();
 
   /** 
@@ -101,7 +109,7 @@ export abstract class GtLMSSite{
    * Init 04 - Fill teacher end pupil info (url, login, password)
   */
   abstract initAccounts();
-  ////  FIN Accesseurs liés aux fonctions à surcharger dans les classes filles  ////
+  ////  FIN Méthodes et Accesseurs à surcharger dans les classes filles  ////
 
   init(browser: NightwatchBrowser) {
     this.testContext.browser = browser;
@@ -113,11 +121,11 @@ export abstract class GtLMSSite{
   get browser(): NightwatchBrowser{
     return this.testContext.browser;
   }
-  get logIdt(): any{
+  get logIdt(): LogIndent{
     return this.testContext.logIndent;
   }
-  idt(){
-    return this.testContext.logIndent.indentStr();
+  idt(logIndentTitle?: string): string{
+    return this.testContext.logIndent.indentStr(logIndentTitle);
   }
 
   /**
@@ -141,7 +149,7 @@ export abstract class GtLMSSite{
       case 'text' : testProp = 'color';
         break;
     }
-    this.browser.verify.cssProperty(this.__cssDest(elt), testProp, color.cssString(this.browser), (msg !== undefined ? idt()+msg : msg));
+    this.browser.verify.cssProperty(this.__cssDest(elt), testProp, color.cssString(this.browser), (msg !== undefined ? this.idt()+msg : msg));
   }
 
   /**
@@ -150,23 +158,9 @@ export abstract class GtLMSSite{
    */
   checkElements(eltsArray: Array<BasicAccessor>){
     eltsArray.forEach( (elt: BasicAccessor, index: number) => {
-        elt.checkProperties(this.testContext);
+        elt.checkAllProperties(this.testContext);
       }
     );
-  }
-  
-  login() {
-    let browser = this.browser;
-    browser
-      .url(this.accounts.prof.url)
-      .waitForElementVisible('body', 5000)
-      .waitForElementVisible('#gt-placeholder-0', 15000);
-    
-    //Je n'arrive pas à trouver la couleur du texte dans le place-holder
-    //browser.verify.cssProperty('#gt-placeholder-7', 'background-color', 'rgb('+selColor.r+', '+selColor.g+', '+selColor.b+')', 'Vérification de la couleur du fond du bouton "S\'enregistrer"');
-    let loginPage = this.struct.loginPage;
-    this.checkElements([loginPage.login, loginPage.register, loginPage.pwdLost]);
-    this.__logIn(this.accounts.prof, true);
   }
 
   //'Vérification des couleurs'(browser) {
@@ -193,38 +187,20 @@ export abstract class GtLMSSite{
   __cssDest(elt){
     return elt.hasOwnProperty('selector') ? elt.selector : elt;
   }
-  __home(){
+  home(){
     this.browser.click(this.struct.tabs.home.selector);
     this.browser.pause(500);
   }
 
   __goTo(cssDest){
-    this.__home();
+    this.home();
     this.browser.click(cssDest.hasOwnProperty('selector') ? cssDest.selector : cssDest);
   }
 
-  __logIn(account, useEnterKey){
-    let browser = this.browser;
-    browser.waitForElementVisible('input[ng-model="LoginCtrl.email"]', 5000, 'Attente d\'affichage de la page de connexion');
-    browser.setValue('#gt-placeholder-0', account.login);
-    if(useEnterKey === true){
-      browser.setValue('#gt-placeholder-1', [account.password, browser.Keys.ENTER]);
-    }
-    else{
-      browser.setValue('#gt-placeholder-1', account.prof.password);
-      //browser.click(this.struct.loginPage.elts.buttons.submit);TODO common elts ?
-      browser.click(this.struct.loginPage.login.selector);
-    }
-    browser.waitForElementVisible(this.struct.tabs.home.selector, 10000, 'Attente d\'affichage de l\'accueil (%s) : %d ms');
+  selectTab(destTab: GtLMSTab){
+    this.home();
+    this.browser.click(destTab.selector);
   }
-
-  __logOut(){
-    let browser = this.browser;
-    browser.execute("document.querySelector('div.user-menu-content').style.setProperty('display', 'block', 'important');");
-    browser.waitForElementVisible(this.struct.user.logout.selector, 1000);
-    browser.click(this.struct.user.logout.selector);
-  }
-
   /* TODO
   __checkRessTabColors(){
     let site = this;
@@ -358,36 +334,9 @@ export abstract class GtLMSSite{
    * Génération de l'objet NodeJS à utiliser par Nightwatch (module.exports = xxx.genNodeExport();)
    */
   genNodeExport(){
-    let fctPrefix = function(inc?){
-      if(inc !== false){
-        fctNum++;
-      }
-      return zeroPad(fctNum, 2)+'-';
-    }
-    let site = this;
-    let njsExp: any = {};
-    let fctNum =  0;
-    njsExp[fctPrefix()+'Authentification'] = function(browser){
-      site.init(browser);
-      site.login();
-    };
-
-    njsExp[fctPrefix()+'Vérification des couleurs'] = function(browser) {
-        ////  ACCUEIL  ////
-        site.checkColors();
-      };
-    
-    njsExp.after = function(browser: NightwatchBrowser) {
-        if(browser.options.desiredCapabilities.browserName == 'MicrosoftEdge'){
-          browser.click(site.struct.user.logout.selector);
-          browser.deleteCookies(function() {
-            console.log('Suppression des cookies pour Edge');
-          });
-        }
-        console.log('Closing down...');
-        browser.end();
-      };
-    return njsExp;
+    this.testMng.tests.push(new TestLogin(this));
+    this.testMng.tests.push(new TestTabRessources(this));
+    return this.testMng.genNodeExport();
   }
 
 }
@@ -396,7 +345,7 @@ class GtLMSAccountList{
   prof : GtLMSAccount = new GtLMSAccount();
   eleve : GtLMSAccount = new GtLMSAccount();
 }
-class GtLMSAccount{
+export class GtLMSAccount{
   url : string;
   login : string;
   password : string;

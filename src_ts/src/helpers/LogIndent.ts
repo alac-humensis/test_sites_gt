@@ -1,4 +1,3 @@
-//module.exports =  {
 export class LogIndent{
   indentLevel : number = 0;
 

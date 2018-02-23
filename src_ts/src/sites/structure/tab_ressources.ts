@@ -2,6 +2,7 @@ import { BasicAccessor } from "./basic_accessor";
 import { GtLMSSite } from "../GtLmsTemplate";
 
 export class GtLMSTabRessources extends BasicAccessor{
+  header : RessListHeader;
   tabsCont : BasicAccessor;
   tabSelected : BasicAccessor;
   tabUnselected : BasicAccessor;
@@ -10,20 +11,28 @@ export class GtLMSTabRessources extends BasicAccessor{
 
   constructor() {
     super(null, 'a[ui-sref="app.resources"]', 'Ressources');
-    this.tabsCont = new BasicAccessor(this, 'div.gt-tabs-menu');
-    this.tabSelected = new BasicAccessor(this, 'div.gt-tabs-menu__item--active');
-    this.tabUnselected = new BasicAccessor(this, 'div.gt-tabs-menu__item:not(.gt-tabs-menu__item--active)');
-    this.tabs = [new RessSubTab(this, 'div[ui-sref="app.resources"]', 'Exercices/Documents', 'learning-object'),
-                  new RessSubTab(this, 'div[ui-sref="app.resources.modules"]', 'Séances', 'module'),
-                  new RessSubTab(this, 'div[ui-sref="app.resources.shared"]', 'Séances partagées', 'module')
+    this.header = new RessListHeader(this);
+    this.tabs = [new RessSubTabExoDocs(this, 'div[ui-sref="app.resources"]', 'Exercices/Documents', 'learning-object'),
+                  new RessSubTabSeances(this, 'div[ui-sref="app.resources.modules"]', 'Séances', 'module'),
+                  new RessSubTabSeances(this, 'div[ui-sref="app.resources.shared"]', 'Séances partagées', 'module')
                 ];
+    let tabsText = '';
+    this.tabs.forEach(subTab => {
+      if(tabsText.length > 0){
+        tabsText += ' / ';
+      }
+      tabsText += subTab.text;
+    });
+    this.tabsCont = new BasicAccessor(this, 'div.gt-tabs-menu', '', 'bandeau '+tabsText);
+    this.tabSelected = new BasicAccessor(this, 'div.gt-tabs-menu__item--active', '', 'sous-onglet sélectionné '+tabsText);
+    this.tabUnselected = new BasicAccessor(this, 'div.gt-tabs-menu__item:not(.gt-tabs-menu__item--active)', '', 'sous-onglet NON sélectionné '+tabsText);
     this.waitMsg = new BasicAccessor(this, 'div.gt-loader');
   }
 }
 
 class RessListHeader extends BasicAccessor{
   search: RessSearchBar = new RessSearchBar(this, 'search div.search');
-  favorites_toggle : BasicAccessor = new BasicAccessor(this, 'favorites-toggle');
+  favorites_toggle : BasicAccessor = new BasicAccessor(this, 'favorites-toggle', 'Afficher mes favoris');
   btnNouvSeance : BasicAccessor = new BasicAccessor(this, 'button.new-module', 'CRÉER UNE SÉANCE');
   btnSelection : BasicAccessor = new BasicAccessor(this, 'button.basket-button', 'Ma sélection (0)');
 
@@ -32,14 +41,14 @@ class RessListHeader extends BasicAccessor{
   }
 }
 class RessSearchBar extends BasicAccessor{
-  ico : BasicAccessor = new BasicAccessor(this, 'i.fa-search');
-  input : BasicAccessor = new BasicAccessor(this, '.search input[type="search"]');
+  ico : BasicAccessor = new BasicAccessor(this, 'i.fa-search', '', 'l\'icone de recherche');
+  input : BasicAccessor = new BasicAccessor(this, '.search input[type="search"]', '', 'la zone de recherche');
   placeholder : BasicAccessor = new BasicAccessor(this, '.search input[type="search"]::placeholder');//pseudo-classe inaccessible ?
 
 }
 
 
-class RessSubTab extends BasicAccessor{
+export abstract class RessSubTab extends BasicAccessor{
   ligneRess: RessListObject;
 }
 class RessSubTabExoDocs extends RessSubTab{

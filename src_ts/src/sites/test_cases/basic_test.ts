@@ -1,85 +1,43 @@
 import { GtLMSSite } from "../GtLmsTemplate";
 import { NightwatchBrowser } from "../../nightwatch";
+import { GtLMSStructure } from "../structure/site_structure";
 
-export abstract class BasicTest{
+export abstract class BasicNightwatchTest{
+  static testId: string = 'NO_ID';
+
   protected _site: GtLMSSite;
-
+  
   constructor(site: GtLMSSite) {
     this._site = site;
+    this._setTestId();
   }
 
   ////  Méthodes et Accesseurs à surcharger dans les classes filles  ////
-  abstract execute();
+  /** 
+   * Méthode dans laquelle le membre statique BasicNightwatchTest.testId doit être renseigné
+  */
+  protected abstract _setTestId();
+  abstract get name(): string;
+  abstract execute(browser: NightwatchBrowser);
+  abstract get canBeExecuted(): boolean;
   ////  FIN Méthodes et Accesseurs à surcharger dans les classes filles  ////
 
+  get id(): string{
+    var instClass = <typeof BasicNightwatchTest>this.constructor; 
+    console.log('instClass.testId : '+instClass.testId);
+    return instClass.testId;
+  }
   get site(): GtLMSSite{
     return this._site;
   }
   get browser(): NightwatchBrowser{
-    return this._site.testContext.browser;
+    return this.site.testContext.browser;
   }
-  idt(): string{
-    return this._site.testContext.logIndent.indentStr();
+  get struct(): GtLMSStructure{
+    return this.site.struct;
   }
-
-  checkProperties(ctx: TestContext){
-    if(!this._checkActivation()) return;
-    this.checkColors(ctx);
-    this.checkText(ctx);
-    this.checkUrl(ctx);
-  }
-  checkColors(ctx: TestContext){
-    if(!this._checkActivation()) return;
-    if(this.colors.background != null){
-      this.checkColor(ctx, 'bg', this.colors.background);
-    }
-    if(this.colors.text != null){
-      this.checkColor(ctx, 'text', this.colors.text);
-    }
-    if(this.colors.border != null){
-      this.checkColor(ctx, 'border', this.colors.border);
-    }
-  }
-
-  checkColor(ctx: TestContext, cssProp: string, color: Color){
-    if(!this._checkActivation()) return;
-    
-    let testProp = cssProp;
-    let msg: string = undefined;
-    switch(cssProp){
-      case 'bg' :
-      case 'background' :
-      case 'background-color' : 
-          testProp = 'background-color';
-          msg = this._getLogMsg('Couleur du fond de');
-        break;
-      case 'txt' :
-      case 'text' : 
-          testProp = 'color';
-          msg = this._getLogMsg('Couleur du texte de');
-        break;
-      case 'border' : 
-          testProp = 'border-color';
-          msg = this._getLogMsg('Couleur de la bordure de');
-        break;
-    }
-    if(color == null){
-      console.error('Test ignoré car couleur nulle : '+msg);
-    }
-    else{
-      ctx.browser.verify.cssProperty(this.selector, testProp, color.cssString(ctx.browser), (msg !== undefined ? ctx.logIndent.indentStr()+msg : msg));
-    }
-  }
-
-  checkText(ctx: TestContext){
-    if(!this._checkActivation()) return;
-    if(this.text.length == 0) return;
-    ctx.browser.verify.containsText(this.selector, this.text, this._getLogMsgIndented(ctx, 'Vérification du texte du bouton '));
-  }
-
-  checkUrl(ctx: TestContext){
-    if(!this._checkActivation()) return;
-    if(this.url.length == 0) return;
-    ctx.browser.verify.attributeEquals(this.selector, 'href', this.url, this._getLogMsgIndented(ctx, 'Vérification du lien '));
+  
+  idt(logIndentTitle?: string): string{
+    return this.site.testContext.logIndent.indentStr(logIndentTitle);
   }
 }

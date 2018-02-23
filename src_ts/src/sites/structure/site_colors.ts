@@ -43,7 +43,7 @@ class GtLMSFiltersColors extends GtLMSSpecificItemColor{
   constructor(lmsColors: GtLMSColors){
     super(lmsColors);
     this.activeColor = colorFromHex('#0298ca');
-    this.puces = lmsColors.main.activeColor;
+    this.puces = this.activeColor;
     this.items = new GtLMSFilterItemsColors(lmsColors);
   }
 }
@@ -96,7 +96,7 @@ class GtLMSFilterItemsColors extends GtLMSSpecificItemColor{
 /** 
  * Couleurs d'un filtre, en utilisant la version non sélectionnée par défaut
 */
-class GtLMSFilterItemColors extends GtLMSSpecificItemColor{
+export class GtLMSFilterItemColors extends GtLMSSpecificItemColor{
   checkbox : Color = colorFromHex('#e8e8e8');
   text : Color = colorFromHex('#2c3e50');
   /**

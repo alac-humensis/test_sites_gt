@@ -48,7 +48,7 @@ export class BasicAccessor{
     return (msg != undefined) ? ctx.logIndent.indentStr()+msg : undefined;
   }
 
-  checkProperties(ctx: TestContext){
+  checkAllProperties(ctx: TestContext){
     if(!this._checkActivation()) return;
     this.checkColors(ctx);
     this.checkText(ctx);
