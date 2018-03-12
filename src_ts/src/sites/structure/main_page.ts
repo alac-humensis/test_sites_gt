@@ -8,7 +8,11 @@ import { GtLMSTabRessources } from "./tab_ressources";
 export class GtLMSTab extends BasicAccessor{
   //
 }
+
 export class GtLMSTabs{
+  tabSelected : BasicAccessor = new BasicAccessor(null, '.menu-item.active a', '', 'Onglet sélectionné');
+  tabUnselected : BasicAccessor = new BasicAccessor(null, '.menu-item:not(.active) a', '', 'Onglet désélectionné');
+
   home: GtLMSTab = new GtLMSTab(null, 'div.institution-infos img', '', 'Accueil');;
   ressources : GtLMSTabRessources;
   mesRessources: GtLMSTab = new GtLMSTab(null, 'a[ui-sref="app.library"]', 'Mes ressources');

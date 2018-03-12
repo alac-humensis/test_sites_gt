@@ -47,13 +47,13 @@ export class TestLogin extends BasicNightwatchTest{
       browser.setValue('#gt-placeholder-1', account.password);
       browser.click(this.site.struct.loginPage.login.selector);
     }
-    browser.waitForElementVisible(this.site.struct.tabs.home.selector, 10000, 'Attente d\'affichage de l\'accueil (%s) : %d ms');
+    browser.waitForElementVisible(this.site.struct.tabs.home.selector, 20000, 'Attente d\'affichage de l\'accueil (%s) : %d ms');
   }
 
   protected _logOut(){
     let browser = this.browser;
     browser.execute("document.querySelector('div.user-menu-content').style.setProperty('display', 'block', 'important');");
-    browser.waitForElementVisible(this.site.struct.user.logout.selector, 1000, 'Déconnexion');
+    browser.waitForElementVisible(this.site.struct.user.logout.selector, 5000, 'Déconnexion');
     browser.click(this.site.struct.user.logout.selector);
   }
 }

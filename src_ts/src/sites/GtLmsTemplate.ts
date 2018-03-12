@@ -10,6 +10,7 @@ import { NightwatchTestManager } from "./test_cases/test_manager";
 import { TestLogin } from "./test_cases/test_login";
 import { GtLMSTabs, GtLMSTab } from "./structure/main_page";
 import { TestTabRessources } from "./test_cases/test_tab_ressources";
+import { TestHome } from "./test_cases/test_home";
 
 /*
 var logIndent = require('../helpers/LogIndent.js');
@@ -335,6 +336,7 @@ export abstract class GtLMSSite{
    */
   genNodeExport(){
     this.testMng.tests.push(new TestLogin(this));
+    this.testMng.tests.push(new TestHome(this));
     this.testMng.tests.push(new TestTabRessources(this));
     return this.testMng.genNodeExport();
   }

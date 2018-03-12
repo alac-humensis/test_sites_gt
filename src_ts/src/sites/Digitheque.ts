@@ -34,6 +34,9 @@ export class Digitheque extends GtLMSSite {
   initTabs(){
     //TODO
     this.struct.loginPage.pwdLost.url = 'http://enseignant.digitheque-belin.fr/#/password/lost';
+    this.struct.tabs.tabSelected.colors.text = this.colors.main.activeColor;
+    this.struct.tabs.tabUnselected.colors.text = this.colors.main.inactiveColor;
+
     let ressHeader = this.struct.tabs.ressources.header;
     ressHeader.search.ico.colors.text = colorFromHex('#2C3E50');
     ressHeader.search.input.colors.background = colorFromHex('#fff');
